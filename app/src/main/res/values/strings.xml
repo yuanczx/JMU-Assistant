@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Transcript</string>
+    <string name="Home">主页</string>
+    <string name="Detail">详细</string>
+    <string name="func">功能</string>
+    <string name="user">个人</string>
+    <string name="Course">课程表</string>
+</resources>
