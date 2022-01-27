@@ -23,6 +23,7 @@ object TheRetrofit {
     private val retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
+            .addConverterFactory(TheConvertFactory())
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client)
             .build()

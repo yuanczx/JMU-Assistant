@@ -3,6 +3,7 @@ package com.jmu.assistant
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
+import android.os.StrictMode
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,8 +12,11 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.*
@@ -38,21 +42,20 @@ import com.jmu.assistant.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
     companion object {
-        var studentID: String =""
+        var studentID: String = ""
         var cookie: String = ""
-
     }
-    val viewModel by viewModels<MainViewModel>()
+
+    val mainViewModel by viewModels<MainViewModel>()
+
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("files",filesDir.path)
         setContent {
-            Log.d("ViewModel",viewModel.toString())
-            var bottomBar by remember {
-                mutableStateOf(false)
-            }
+            var bottomBar by remember { mutableStateOf(false) }
             val navController = rememberAnimatedNavController()
             TranscriptTheme {
                 Surface(
@@ -60,15 +63,18 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Scaffold(topBar = {
-                        if (viewModel.selfTopBar==null){
-                            SmallTopAppBar(
-                                title = { Text(text = "JMU Assistant") },
-                                colors = TopAppBarDefaults.smallTopAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.primary,
-                                    titleContentColor = MaterialTheme.colorScheme.background,
-                                )
+                        SmallTopAppBar(
+                            navigationIcon = mainViewModel.navigationIcon,
+                            actions = mainViewModel.actions,
+                            title = { Text(text = mainViewModel.title) },
+                            scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+                            colors = TopAppBarDefaults.smallTopAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                titleContentColor = MaterialTheme.colorScheme.background,
+                                navigationIconContentColor = MaterialTheme.colorScheme.background,
+                                actionIconContentColor = MaterialTheme.colorScheme.background
                             )
-                        }
+                        )
                     }, bottomBar = {
                         if (bottomBar) {
                             BottomNavigation(
@@ -109,7 +115,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-                    }) {
+                    }, floatingActionButton = mainViewModel.floaAction) {
                         AnimatedNavHost(
                             navController = navController,
                             startDestination = ContentNav.Login.route
@@ -132,10 +138,12 @@ class MainActivity : ComponentActivity() {
                             composable(BtmNav.Func.route) {
                                 FuncScreen(navController)
                                 bottomBar = true
+                                mainViewModel.floaAction = {}
                             }
                             composable(BtmNav.User.route) {
-                                UserScreen(navController)
+                                UserScreen()
                                 bottomBar = true
+                                mainViewModel.floaAction = {}
                             }
                         }
                     }

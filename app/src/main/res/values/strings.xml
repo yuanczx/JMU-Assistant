@@ -7,4 +7,6 @@
     <string name="Course">课程表</string>
     <string name="Transcript">成绩单</string>
     <string name="Login">登录</string>
+    <string name="basic_info">基本信息</string>
+    <string name="wait_loading">正在加载中请稍后……</string>
 </resources>

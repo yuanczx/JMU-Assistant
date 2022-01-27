@@ -1,12 +1,15 @@
 package com.jmu.assistant.viewmodel
 
+import android.app.Application
+import android.content.Context
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.models.Activity
 import com.jmu.assistant.models.CourseTable
@@ -14,8 +17,12 @@ import com.jmu.assistant.utils.TheRetrofit
 import retrofit2.awaitResponse
 import java.time.LocalDate
 import java.util.*
+import kotlin.concurrent.timerTask
 
-class CourseViewModel : ViewModel() {
+class CourseViewModel(application: Application) : AndroidViewModel(application) {
+
+    private fun context(): Context = getApplication<Application>().applicationContext
+
     companion object {
 
         private const val ICS_START =
@@ -75,15 +82,20 @@ class CourseViewModel : ViewModel() {
             semester = SEMESTER[semesterIndex],
             studentId = MainActivity.studentID
         ).awaitResponse()
-        if (response.isSuccessful) {
-            courseTable = response.body()
-            courseTable?.let { course ->
-                course.studentTableVm.activities.forEach {
-                    it.weekIndexes.sort()
+        try {
+            if (response.isSuccessful) {
+                courseTable = response.body()
+                courseTable?.let { course ->
+                    course.studentTableVm.activities.forEach {
+                        it.weekIndexes.sort()
+                    }
                 }
+                buildICS()
+                loadCourse = false
             }
-            buildICS()
-            loadCourse = false
+        } catch (e: Exception) {
+            Log.e(e.toString(), e.message.toString())
+            Toast.makeText(context(), "请求失败请重新尝试", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -161,10 +173,18 @@ class CourseViewModel : ViewModel() {
                 DESCRIPTION:${
                     course.teachers.toArray().contentToString().replace("[", "").replace("]", "")
                 }
-                LOCATION:${try{course.room.removeSuffix("*")}catch (e:NullPointerException){course.room}}
+                LOCATION:${
+                    try {
+                        course.room.removeSuffix("*")
+                    } catch (e: NullPointerException) {
+                        course.room
+                    }
+                }
                 END:VEVENT """.trimIndent()
             }
         }
         return event
     }
+
+    fun toast(s: String) = Toast.makeText(context(),s,Toast.LENGTH_SHORT).show()
 }

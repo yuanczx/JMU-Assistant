@@ -16,15 +16,14 @@ class TheConvertFactory : Converter.Factory() {
         annotations: Array<out Annotation>,
         retrofit: Retrofit
     ): Converter<ResponseBody, *>? {
+        if (type == String::class.java) return StringConverter()
         return null
     }
 
 }
 
-class CourseConverter : Converter<ResponseBody, CourseTable> {
-    override fun convert(value: ResponseBody): CourseTable? {
-        Log.d("json", value.string())
-        return Gson().fromJson(value.string(), CourseTable::class.java)
+class StringConverter : Converter<ResponseBody, String> {
+    override fun convert(value: ResponseBody): String {
+        return value.string()
     }
-
 }
