@@ -1,23 +1,33 @@
 package com.jmu.assistant.viewmodel
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.content.FileProvider
 import androidx.lifecycle.AndroidViewModel
 import com.jmu.assistant.MainActivity
+import com.jmu.assistant.R
 import com.jmu.assistant.models.Activity
 import com.jmu.assistant.models.CourseTable
+import com.jmu.assistant.ui.theme.GeekBlue
+import com.jmu.assistant.ui.theme.Green
+import com.jmu.assistant.ui.theme.Orange
+import com.jmu.assistant.ui.theme.Purplem
 import com.jmu.assistant.utils.TheRetrofit
 import retrofit2.awaitResponse
+import java.io.File
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.*
-import kotlin.concurrent.timerTask
 
 class CourseViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -68,21 +78,60 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
         @RequiresApi(Build.VERSION_CODES.O)
         private val START_DATE =
             listOf(LocalDate.parse("2022-02-20"), LocalDate.parse("2021-09-05"))
+
     }
 
-    var ics by mutableStateOf("")
+
+    fun randomColor(): androidx.compose.ui.graphics.Color {
+        val random = Random()
+        val colors = listOf(Green, GeekBlue, Purplem, Orange)
+        return (colors[random.nextInt(4)])
+    }
+    val courseTime = listOf(
+        "8:00\n8:45", "8:50\n9:35",
+        "10:05\n10:50", "10:55\n11:40",
+        "14:00\n14:45", "14:50\n15:35",
+        "15:55\n16:40","16:45\n17:30",
+        "19:00\n19:45","19:50\n20:30")
+    var weekSelector by mutableStateOf(1)
+    var actionMore by mutableStateOf(false)
+    var showWeekSelector by mutableStateOf(false)
+    var loadFinish by mutableStateOf(false)
+    private var ics by mutableStateOf("")
     var semesterIndex by mutableStateOf(0)
-    private var courseTable: CourseTable? by mutableStateOf(null)
+    private var courseTable: CourseTable? = null
     var loadCourse by mutableStateOf(false)
+
+    val weekCourse: MutableMap<Int, MutableMap<Int, Triple<String,String,String>>> = mutableMapOf()
+
+     fun toast(s: String) = Toast.makeText(context(), s, Toast.LENGTH_SHORT).show()
+
+    fun toast(@StringRes id: Int) = toast(context().getString(id))
+
+
+    fun makeCourseTable() {
+        courseTable?.let { ct ->
+            repeat(5) {
+                val courseMap = mutableMapOf<Int, Triple<String,String,String>>()
+                ct.studentTableVm.activities.forEach { activity ->
+                    if (activity.weekday == it+1&&activity.weekIndexes.contains(weekSelector)) {
+                        courseMap[activity.startUnit] = Triple(activity.courseName,activity.room?:"",activity.teachers.first())
+                    }
+                }
+                weekCourse[it+1] = courseMap
+            }
+        }
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getCourseTable() {
         loadCourse = true
-        val response = TheRetrofit.api.getCourse(
-            semester = SEMESTER[semesterIndex],
-            studentId = MainActivity.studentID
-        ).awaitResponse()
         try {
+            val response = TheRetrofit.api.getCourse(
+                semester = SEMESTER[semesterIndex],
+                studentId = MainActivity.studentID
+            ).awaitResponse()
             if (response.isSuccessful) {
                 courseTable = response.body()
                 courseTable?.let { course ->
@@ -90,13 +139,31 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
                         it.weekIndexes.sort()
                     }
                 }
-                buildICS()
                 loadCourse = false
             }
         } catch (e: Exception) {
             Log.e(e.toString(), e.message.toString())
-            Toast.makeText(context(), "请求失败请重新尝试", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context(),
+                context().getString(R.string.request_fail),
+                Toast.LENGTH_SHORT
+            ).show()
         }
+    }
+
+    @SuppressLint("SdCardPath")
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun exportICS(){
+        val icsFile = File("/data/data/com.jmu.assistant/files/course${LocalTime.now()}.ics")
+        if (!icsFile.exists()) icsFile.createNewFile()
+        val intent = Intent()
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        intent.action = Intent.ACTION_VIEW
+        intent.data = FileProvider.getUriForFile(context(), "com.jmu.assistant.fileprovider",icsFile)
+        icsFile.writeText(ics)
+        toast(R.string.select_app_toast)
+        context().startActivity(intent)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -138,15 +205,12 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
                     gap = gap,
                     course = course
                 )
-                //调试输出
-                Log.d("counts:${course.courseName}", counts.contentToString())
-                Log.d("gap:${course.courseName}", gap.contentToString())
-                Log.d("indexes:${course.courseName}", course.weekIndexes.contentToString())
             }
-            ics += "\nEND:VCALENDAR"
-            ics = ics.replace(Regex("\\s+"), "\n")
+            ics += "\nEND:VCALENDAR"//ics结束语句
+            ics = ics.replace(Regex("\\s+"), "\n") //去除多余空白符
         }
     }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun makeEventWithWeeks(
@@ -161,7 +225,7 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
                 val date =
                     startDate.plusDays((7 * (course.weekIndexes[index] - 1) + course.weekday).toLong())
                 event += """    BEGIN:VEVENT
-                UID:@yuanczx${UUID.randomUUID()}
+                UID:yuanczx@${UUID.randomUUID()}
                 DTSTART;TZID=Asia/Shanghai:${
                     date.toString().replace("-", "")
                 }T${CLASS_TIME[course.startUnit - 1]}
@@ -175,7 +239,7 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
                 }
                 LOCATION:${
                     try {
-                        course.room.removeSuffix("*")
+                        course.room?.removeSuffix("*")
                     } catch (e: NullPointerException) {
                         course.room
                     }
@@ -185,6 +249,4 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
         }
         return event
     }
-
-    fun toast(s: String) = Toast.makeText(context(),s,Toast.LENGTH_SHORT).show()
 }

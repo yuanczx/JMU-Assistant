@@ -16,7 +16,7 @@ data class Activity(
     val lessonName: String,
     val courseName: String,
     val weekIndexes: IntArray,
-    val room: String,
+    val room: String?,
     val building: String,
     val campus: String,
     val weekday: Int,

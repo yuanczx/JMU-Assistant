@@ -15,7 +15,7 @@ object TheRetrofit {
             .connectTimeout(40, TimeUnit.SECONDS)
             .readTimeout(40, TimeUnit.SECONDS)
             .followRedirects(false)
-            .addInterceptor(RequestIntercepter())
+            .addInterceptor(RequestInterceptor())
             .build()
     }
 

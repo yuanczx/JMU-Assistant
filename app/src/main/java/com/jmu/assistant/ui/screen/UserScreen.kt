@@ -1,6 +1,5 @@
 package com.jmu.assistant.ui.screen
 
-import android.text.style.LineHeightSpan
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
@@ -13,8 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
@@ -24,8 +21,6 @@ import com.jmu.assistant.R
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainActivity.UserScreen() {
-    val scope = rememberCoroutineScope()
-
     var maxLine by remember {
         mutableStateOf(5)
     }
@@ -54,7 +49,6 @@ fun MainActivity.UserScreen() {
                 text = mainViewModel.rightData,
                 modifier = Modifier.padding(start = 8.dp,top = 5.dp),
                 fontWeight = FontWeight.Light,
-
                 lineHeight =28.sp
             )
         }
@@ -83,9 +77,4 @@ fun MainActivity.UserScreen() {
             }
     }
 
-    LaunchedEffect(null) {
-        if (!mainViewModel.showInfo) {
-            mainViewModel.getStudentInfo()
-        }
-    }
 }

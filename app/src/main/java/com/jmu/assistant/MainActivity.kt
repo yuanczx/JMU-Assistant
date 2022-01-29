@@ -3,8 +3,6 @@ package com.jmu.assistant
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.os.StrictMode
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -12,11 +10,10 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Column
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.*
@@ -29,6 +26,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -39,21 +39,30 @@ import com.jmu.assistant.entity.ContentNav
 import com.jmu.assistant.ui.screen.*
 import com.jmu.assistant.ui.theme.TranscriptTheme
 import com.jmu.assistant.viewmodel.MainViewModel
+import kotlinx.coroutines.launch
+
+
+val MainActivity.dataStore by preferencesDataStore(name = "main")
 
 class MainActivity : ComponentActivity() {
     companion object {
         var studentID: String = ""
         var cookie: String = ""
+        val COOKIE_KEY = stringPreferencesKey("cookie")
     }
 
     val mainViewModel by viewModels<MainViewModel>()
+
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("files",filesDir.path)
+        mainViewModel.viewModelScope.launch {
+            if (mainViewModel.judgeStartRoute(dataStore))
+                mainViewModel.getStudentInfo()
+        }
         setContent {
             var bottomBar by remember { mutableStateOf(false) }
             val navController = rememberAnimatedNavController()
@@ -63,18 +72,20 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Scaffold(topBar = {
-                        SmallTopAppBar(
-                            navigationIcon = mainViewModel.navigationIcon,
-                            actions = mainViewModel.actions,
-                            title = { Text(text = mainViewModel.title) },
-                            scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
-                            colors = TopAppBarDefaults.smallTopAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                titleContentColor = MaterialTheme.colorScheme.background,
-                                navigationIconContentColor = MaterialTheme.colorScheme.background,
-                                actionIconContentColor = MaterialTheme.colorScheme.background
+                        if (mainViewModel.showTopBar) {
+                            SmallTopAppBar(
+                                navigationIcon = mainViewModel.navigationIcon,
+                                actions = mainViewModel.actions,
+                                title = { Text(text = mainViewModel.title) },
+                                scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+                                colors = TopAppBarDefaults.smallTopAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.primary,
+                                    titleContentColor = MaterialTheme.colorScheme.background,
+                                    navigationIconContentColor = MaterialTheme.colorScheme.background,
+                                    actionIconContentColor = MaterialTheme.colorScheme.background
+                                )
                             )
-                        )
+                        }
                     }, bottomBar = {
                         if (bottomBar) {
                             BottomNavigation(
@@ -115,10 +126,10 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-                    }, floatingActionButton = mainViewModel.floaAction) {
+                    }, floatingActionButton = mainViewModel.floatAction) {
                         AnimatedNavHost(
                             navController = navController,
-                            startDestination = ContentNav.Login.route
+                            startDestination = mainViewModel.startRoute
                         ) {
                             composable(
                                 ContentNav.Login.route,
@@ -129,21 +140,28 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(ContentNav.Transcript.route) {
                                 TranscriptScreen()
+                                mainViewModel.showTopBar = true
                                 bottomBar = false
                             }
-                            composable(ContentNav.Course.route) {
+                            composable(ContentNav.Course.route, enterTransition = {
+                                slideInHorizontally { fullWidth -> -fullWidth }
+                            }, exitTransition = {
+                                slideOutHorizontally{fullWidth -> -fullWidth }
+                            }) {
                                 bottomBar = false
+                                mainViewModel.showTopBar = false
                                 CourseScreen(navController)
                             }
                             composable(BtmNav.Func.route) {
                                 FuncScreen(navController)
                                 bottomBar = true
-                                mainViewModel.floaAction = {}
+                                mainViewModel.showTopBar = true
+                                mainViewModel.floatAction = {}
                             }
                             composable(BtmNav.User.route) {
                                 UserScreen()
                                 bottomBar = true
-                                mainViewModel.floaAction = {}
+                                mainViewModel.floatAction = {}
                             }
                         }
                     }

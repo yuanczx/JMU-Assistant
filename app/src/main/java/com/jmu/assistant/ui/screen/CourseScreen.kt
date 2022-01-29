@@ -1,46 +1,39 @@
 package com.jmu.assistant.ui.screen
 
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Build
-import android.util.Log
-import android.view.WindowInsets
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresPermission
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
-import androidx.core.net.toUri
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.google.accompanist.permissions.*
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
+import com.jmu.assistant.ui.theme.Gray
 import com.jmu.assistant.ui.widgets.DropDownButton
 import com.jmu.assistant.ui.widgets.ProgressDialog
 import com.jmu.assistant.viewmodel.CourseViewModel
 import kotlinx.coroutines.launch
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.StandardOpenOption
 
 @SuppressLint("SdCardPath")
 @RequiresApi(Build.VERSION_CODES.O)
@@ -49,55 +42,200 @@ import java.nio.file.StandardOpenOption
 fun MainActivity.CourseScreen(navController: NavHostController) {
     val viewModel: CourseViewModel = viewModel()
 
-    val menuItem = listOf("请选择学期", "2021-2022 第二学期", "2021-2022 第一学期")
-    val permission = rememberMultiplePermissionsState(
-        permissions = listOf(
-            android.Manifest.permission.READ_EXTERNAL_STORAGE,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        )
+    LaunchedEffect(key1 = null, block = {
+        mainViewModel.showTopBar = false
+        viewModel.getCourseTable()
+        viewModel.makeCourseTable()
+        viewModel.loadFinish = true
+    })
+    val menuItem = listOf(
+        stringResource(R.string.second_semester_21_22),
+        stringResource(R.string.first_semester_21_22)
     )
     val scope = rememberCoroutineScope()
 
-    Column(Modifier.fillMaxSize()) {
-        DropDownButton(
-            items = menuItem, modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp), offset = DpOffset(20.dp, (-220).dp), onClick = {
-                if (it != 0) scope.launch {
-                    viewModel.semesterIndex = it - 1 //设置索引
-                    viewModel.getCourseTable() //获取课程表
-                    mainViewModel.loadFinish = true //显示FloatActionBar
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        SmallTopAppBar(colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.background,
+            actionIconContentColor = MaterialTheme.colorScheme.primary
+        ),
+            title = { Text(text = stringResource(id = R.string.Course)) },
+            actions = {
+                DropDownButton(
+                    items = menuItem, modifier = Modifier
+                        .padding(0.dp), onClick = {
+                        if (viewModel.semesterIndex != it) scope.launch {
+                            viewModel.semesterIndex = it //设置索引
+                            viewModel.weekSelector = 1
+                            viewModel.getCourseTable() //获取课程表
+                            viewModel.makeCourseTable()
+                            viewModel.loadFinish = true //显示FloatActionBar
+                        }
+                    })
+                TextButton(onClick = { viewModel.showWeekSelector = true }) {
+                    Text(
+                        text = "第${viewModel.weekSelector}周",
+                        color = MaterialTheme.colorScheme.background
+                    )
+                    DropdownMenu(
+                        modifier = Modifier.height(250.dp),
+                        expanded = viewModel.showWeekSelector,
+                        onDismissRequest = { viewModel.showWeekSelector = false }) {
+                        repeat(18) {
+                            DropdownMenuItem(onClick = {
+                                viewModel.loadFinish = false
+                                viewModel.weekSelector =
+                                    it + 1;viewModel.makeCourseTable();viewModel.showWeekSelector =
+                                false;viewModel.loadFinish = true
+                            }) {
+                                Text(text = "第${it + 1}周")
+                            }
+                        }
+                    }
+                }
+
+                IconButton(onClick = { viewModel.actionMore = !viewModel.actionMore }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "More",
+                        tint = MaterialTheme.colorScheme.background
+                    )
+                    DropdownMenu(
+                        expanded = viewModel.actionMore,
+                        onDismissRequest = { viewModel.actionMore = false }) {
+                        DropdownMenuItem(onClick = {
+                            viewModel.buildICS()
+                            viewModel.exportICS()
+                        }) {
+                            Text(text = "导出为ICS文件")
+                        }
+                    }
                 }
             })
-        if (!viewModel.loadCourse) SelectionContainer {
-            Text(
-                text = viewModel.ics, modifier = Modifier.verticalScroll(
-                    rememberScrollState()
+
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(35.dp), horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            repeat(6) {
+                if (it == 0) Text(
+                    modifier = Modifier.weight(0.1f),
+                    text = "时间",
+                    textAlign = TextAlign.Center
                 )
-            )
+                else Text(
+                    modifier = Modifier.weight(0.18f),
+                    text = "周 $it",
+                    textAlign = TextAlign.Center
+                )
+            }
         }
+
+        if (viewModel.loadFinish)
+            Row(Modifier.fillMaxSize()) {
+                repeat(6) { weekday ->
+                    Column(
+                        modifier = Modifier
+                            .weight(if (weekday == 0) 0.1f else 0.18f)
+                            .fillMaxHeight(),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        if (weekday == 0) repeat(5) {
+                            Column(
+                                modifier = Modifier
+                                    .weight(0.19f)
+                                    .fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = (it * 2 + 1).toString(),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp
+                                )
+                                Text(text = viewModel.courseTime[it * 2], fontSize = 12.sp)
+                                Divider(Modifier.height(1.dp))
+                                Text(
+                                    text = (it * 2 + 2).toString(),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp
+                                )
+                                Text(text = viewModel.courseTime[it * 2 + 1], fontSize = 12.sp)
+                                Divider(
+                                    Modifier.height(1.dp),
+                                    color = if (it != 1 && it != 3 && it != 4) MaterialTheme.colorScheme.onSurface.copy(
+                                        0.12f
+                                    )
+                                    else Color.Transparent
+                                )
+                            }
+                            if (it == 3 || it == 1) Divider(Modifier.weight(0.025f))
+                        }
+                        else repeat(5) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(0.19f)
+                                    .fillMaxSize()
+                                    .padding(1.dp)
+                                    .clip(RoundedCornerShape(7.dp))
+                                    .background(Gray)
+                            ) {
+                                viewModel.weekCourse[weekday]?.get(it * 2 + 1)?.let {
+                                    Column(
+                                        Modifier.fillMaxSize().clickable{ viewModel.toast(it.first + it.second) },
+                                        verticalArrangement = Arrangement.SpaceBetween,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = it.first,
+                                            maxLines = 3,
+                                            fontWeight = FontWeight.Bold,
+                                            textAlign = TextAlign.Center,
+                                            fontSize = 14.sp,
+                                            modifier = Modifier
+                                                .padding(
+                                                    top = 5.dp,
+                                                    start = 2.dp,
+                                                    end = 2.dp
+                                                )
+                                        )
+                                        Text(
+                                            text = it.second,
+                                            textAlign = TextAlign.Center,
+                                            fontSize = 12.sp,
+                                            modifier = Modifier.padding(2.dp)
+                                        )
+                                        Text(
+                                            text = it.third,
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Light,
+                                            modifier = Modifier.padding(
+                                                bottom = 5.dp,
+                                                start = 2.dp,
+                                                end = 2.dp
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                            if (it == 3 || it == 1) Divider(Modifier.weight(0.025f))
+                        }
+                        Divider(Modifier.height(10.dp))
+                    }
+                }
+            }
+
     }
 
     mainViewModel.title = stringResource(id = R.string.Course)
-    if (mainViewModel.loadFinish) mainViewModel.floaAction = {
-        SmallFloatingActionButton(onClick = {
-            if (permission.allPermissionsGranted) {
-                val myFile = File("/data/data/com.jmu.assistant/files/course.ics")
-                if (!myFile.exists()) myFile.createNewFile()
-                val intent = Intent()
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                intent.action = Intent.ACTION_VIEW
-                intent.data =
-                    FileProvider.getUriForFile(this, "com.jmu.assistant.fileprovider", myFile)
-                myFile.writeText(viewModel.ics)
-                viewModel.toast("请选择日历应用打开文件")
-                this.startActivity(intent)
-            } else permission.launchMultiplePermissionRequest()
-        }) {
-            Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "Export")
-        }
-    }
 
     if (viewModel.loadCourse) ProgressDialog(stringResource(id = R.string.wait_loading))
 }

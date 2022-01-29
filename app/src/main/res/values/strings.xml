@@ -2,11 +2,19 @@
     <string name="app_name">JMU Assistant</string>
     <string name="Home">主页</string>
     <string name="Detail">详细</string>
-    <string name="func">功能</string>
-    <string name="user">个人</string>
+    <string name="Func">功能</string>
+    <string name="User">个人</string>
     <string name="Course">课程表</string>
     <string name="Transcript">成绩单</string>
     <string name="Login">登录</string>
+
     <string name="basic_info">基本信息</string>
     <string name="wait_loading">正在加载中请稍后……</string>
+    <string name="select_semester">请选择学期</string>
+    <string name="second_semester_21_22">2021–2022 第二学期</string>
+    <string name="first_semester_21_22">2021–2022 第一学期</string>
+    <string name="select_app_toast">请选择日历应用打开文件</string>
+    <string name="request_fail">请求失败请重新尝试</string>
+    <string name="tet">您尚未登录或登录信息已过期请重新登录</string>
+    <string name="login_information_expired">登录信息过期请重新登录</string>
 </resources>

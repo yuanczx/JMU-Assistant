@@ -47,6 +47,7 @@ class TranscriptViewModel : ViewModel() {
             "41" -> semester_20_21_1
             "42" -> semester_20_21_2
             "61" -> semester_21_22_1
+            "181"-> semester_21_22_2
             else -> semester_21_22_2
         }
     }
