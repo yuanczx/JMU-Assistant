@@ -9,6 +9,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,6 +31,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.util.*
 
+@ExperimentalAnimationApi
 class CourseViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun context(): Context = getApplication<Application>().applicationContext
@@ -104,7 +107,7 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
 
     val weekCourse: MutableMap<Int, MutableMap<Int, Triple<String,String,String>>> = mutableMapOf()
 
-     fun toast(s: String) = Toast.makeText(context(), s, Toast.LENGTH_SHORT).show()
+    fun toast(s: String) = Toast.makeText(context(), s, Toast.LENGTH_SHORT).show()
 
     fun toast(@StringRes id: Int) = toast(context().getString(id))
 
@@ -124,6 +127,7 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
     }
 
 
+    @ExperimentalMaterial3Api
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getCourseTable() {
         loadCourse = true

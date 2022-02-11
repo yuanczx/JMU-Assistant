@@ -1,7 +1,9 @@
 package com.jmu.assistant.ui.screen
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -10,6 +12,8 @@ import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
 import com.jmu.assistant.entity.ContentNav
 import com.jmu.assistant.ui.widgets.ImageCardList
+@ExperimentalAnimationApi
+@ExperimentalMaterial3Api
 @Composable
 fun MainActivity.FuncScreen(navController: NavHostController) {
     mainViewModel.title = stringResource(id = R.string.app_name)

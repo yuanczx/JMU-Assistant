@@ -1,13 +1,14 @@
 package com.jmu.assistant.viewmodel
 
 import android.util.Log
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.models.CourseInfo
-import com.jmu.assistant.models.Semester
 import com.jmu.assistant.models.Transcript
 import com.jmu.assistant.utils.TheRetrofit
 import org.jsoup.Jsoup
@@ -15,6 +16,8 @@ import org.jsoup.select.Elements
 import retrofit2.awaitResponse
 
 
+@ExperimentalMaterial3Api
+@ExperimentalAnimationApi
 class TranscriptViewModel : ViewModel() {
     var loading by mutableStateOf(false)
     var error by mutableStateOf(false)

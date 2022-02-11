@@ -3,8 +3,13 @@ package com.jmu.assistant.viewmodel
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.AndroidViewModel
@@ -12,6 +17,7 @@ import coil.request.ImageRequest
 import coil.transform.RoundedCornersTransformation
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.MainActivity.Companion.COOKIE_KEY
+import com.jmu.assistant.MainActivity.Companion.studentID
 import com.jmu.assistant.entity.BtmNav
 import com.jmu.assistant.entity.ContentNav
 import com.jmu.assistant.utils.TheRetrofit
@@ -19,6 +25,8 @@ import kotlinx.coroutines.flow.first
 import org.jsoup.Jsoup
 import retrofit2.awaitResponse
 
+@ExperimentalAnimationApi
+@ExperimentalMaterial3Api
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     var showTopBar by mutableStateOf(true)
@@ -33,24 +41,42 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var startRoute by mutableStateOf(BtmNav.Func.route)
     private fun context(): Context = getApplication<Application>().applicationContext
 
-    suspend fun judgeStartRoute(dataStore: DataStore<Preferences>):Boolean {
+    suspend fun judgeStartRoute(dataStore: DataStore<Preferences>) {
         MainActivity.cookie = dataStore.data.first()[COOKIE_KEY] ?: ""
         if (MainActivity.cookie.isEmpty()) {
             startRoute = ContentNav.Login.route
-            return false
+            return
         }
-        val response = TheRetrofit.api.getStudentId().awaitResponse()
-        response.headers()["Location"]?.let {
-            return if (it.contains("login?refer")) {
+
+        getStudentId()
+
+    }
+
+    suspend fun getStudentId() {
+        try {
+            val response = TheRetrofit.api.getStudentId().awaitResponse()
+            val redirect = response.headers()["Location"] ?: ""
+
+            if (redirect.isBlank()) {
+                response.body()?.let {
+                    val jsoup = Jsoup.parse(it)
+                    studentID = jsoup.select(".footer.btn.btn-info")[0].attr("value").toString()
+                    Log.d("StudentId", studentID)
+                }
+            }
+
+            if (studentID.isNotBlank()) return
+
+            if (redirect.contains("login?refer")) {
                 startRoute = ContentNav.Login.route
-                false
             } else {
                 startRoute = BtmNav.Func.route
-                MainActivity.studentID = it.substringAfter("/info/")
-                true
+                studentID = redirect.substringAfter("/info/")
+                Log.d("StudentID", studentID)
             }
+        } catch (e: Exception) {
+            Log.e(e.toString(), e.message.toString())
         }
-        return false
     }
 
     fun getImageRequest() = ImageRequest.Builder(context())
@@ -61,7 +87,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     suspend fun getStudentInfo() {
         try {
-            val response = TheRetrofit.api.getStudentInfo(MainActivity.studentID).awaitResponse()
+            val response = TheRetrofit.api.getStudentInfo(studentID).awaitResponse()
             val jsoup = Jsoup.parse(response.body().toString())
             rightData +=
                 jsoup.getElementsByClass("base-header-right")[0].text()

@@ -5,6 +5,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -18,24 +19,23 @@ import coil.compose.rememberImagePainter
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
 
-@OptIn(ExperimentalAnimationApi::class)
+@ExperimentalAnimationApi
+@ExperimentalMaterial3Api
 @Composable
 fun MainActivity.UserScreen() {
-    var maxLine by remember {
-        mutableStateOf(5)
-    }
+    var maxLine by remember { mutableStateOf(5) }
     Column(
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .verticalScroll(rememberScrollState())
             .padding(7.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 5.dp, bottom = 15.dp)
-                .clip(RoundedCornerShape(25.dp))
-                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 5.dp, bottom = 15.dp)
+                    .clip(RoundedCornerShape(25.dp))
+                    .background(MaterialTheme.colorScheme.surface)
         ) {
             Image(
                 modifier = Modifier
@@ -47,9 +47,9 @@ fun MainActivity.UserScreen() {
             )
             Text(
                 text = mainViewModel.rightData,
-                modifier = Modifier.padding(start = 8.dp,top = 5.dp),
+                modifier = Modifier.padding(start = 8.dp, top = 5.dp),
                 fontWeight = FontWeight.Light,
-                lineHeight =28.sp
+                lineHeight = 28.sp
             )
         }
         if (mainViewModel.showInfo)
@@ -76,5 +76,10 @@ fun MainActivity.UserScreen() {
                 )
             }
     }
-
+    LaunchedEffect(null) {
+        if (mainViewModel.basicInfo.isBlank())
+            mainViewModel.getStudentInfo()
+        else
+            mainViewModel.showInfo = true
+    }
 }

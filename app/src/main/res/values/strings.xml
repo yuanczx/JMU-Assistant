@@ -17,4 +17,6 @@
     <string name="request_fail">请求失败请重新尝试</string>
     <string name="tet">您尚未登录或登录信息已过期请重新登录</string>
     <string name="login_information_expired">登录信息过期请重新登录</string>
+    <string name="export_ics">导出为ICS文件</string>
+    <string name="time">时间</string>
 </resources>

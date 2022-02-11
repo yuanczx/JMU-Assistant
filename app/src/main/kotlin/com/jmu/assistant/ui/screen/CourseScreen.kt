@@ -4,6 +4,7 @@ package com.jmu.assistant.ui.screen
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,7 +15,9 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,8 +28,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import com.google.accompanist.permissions.*
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
 import com.jmu.assistant.ui.theme.Gray
@@ -35,11 +36,12 @@ import com.jmu.assistant.ui.widgets.ProgressDialog
 import com.jmu.assistant.viewmodel.CourseViewModel
 import kotlinx.coroutines.launch
 
+@ExperimentalAnimationApi
+@ExperimentalMaterial3Api
 @SuppressLint("SdCardPath")
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
-fun MainActivity.CourseScreen(navController: NavHostController) {
+fun MainActivity.CourseScreen() {
     val viewModel: CourseViewModel = viewModel()
 
     LaunchedEffect(key1 = null, block = {
@@ -112,7 +114,7 @@ fun MainActivity.CourseScreen(navController: NavHostController) {
                             viewModel.buildICS()
                             viewModel.exportICS()
                         }) {
-                            Text(text = "导出为ICS文件")
+                            Text(text = stringResource(R.string.export_ics))
                         }
                     }
                 }
@@ -128,7 +130,7 @@ fun MainActivity.CourseScreen(navController: NavHostController) {
             repeat(6) {
                 if (it == 0) Text(
                     modifier = Modifier.weight(0.1f),
-                    text = "时间",
+                    text = stringResource(R.string.time),
                     textAlign = TextAlign.Center
                 )
                 else Text(
@@ -190,7 +192,9 @@ fun MainActivity.CourseScreen(navController: NavHostController) {
                             ) {
                                 viewModel.weekCourse[weekday]?.get(it * 2 + 1)?.let {
                                     Column(
-                                        Modifier.fillMaxSize().clickable{ viewModel.toast(it.first + it.second) },
+                                        Modifier
+                                            .fillMaxSize()
+                                            .clickable { viewModel.toast(it.first + it.second) },
                                         verticalArrangement = Arrangement.SpaceBetween,
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
@@ -236,6 +240,5 @@ fun MainActivity.CourseScreen(navController: NavHostController) {
     }
 
     mainViewModel.title = stringResource(id = R.string.Course)
-
     if (viewModel.loadCourse) ProgressDialog(stringResource(id = R.string.wait_loading))
 }

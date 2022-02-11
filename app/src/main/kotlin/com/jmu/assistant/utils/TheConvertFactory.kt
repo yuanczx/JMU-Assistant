@@ -1,13 +1,8 @@
 package com.jmu.assistant.utils
 
-import android.util.Log
-import com.google.gson.Gson
-import com.jmu.assistant.models.CourseTable
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Retrofit
-import retrofit2.http.HEAD
-import retrofit2.http.Header
 import java.lang.reflect.Type
 
 class TheConvertFactory : Converter.Factory() {

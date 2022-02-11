@@ -1,13 +1,18 @@
 package com.jmu.assistant.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.*
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -19,12 +24,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
+import com.jmu.assistant.ui.widgets.AlertDialog
 import com.jmu.assistant.ui.widgets.GradeList
 import com.jmu.assistant.viewmodel.TranscriptViewModel
-import org.jsoup.nodes.Element
-import com.jmu.assistant.ui.widgets.AlertDialog
 import kotlinx.coroutines.launch
+import org.jsoup.nodes.Element
 
+@ExperimentalAnimationApi
+@ExperimentalMaterial3Api
 @Composable
 fun MainActivity.TranscriptScreen() {
     val viewModel: TranscriptViewModel = viewModel()

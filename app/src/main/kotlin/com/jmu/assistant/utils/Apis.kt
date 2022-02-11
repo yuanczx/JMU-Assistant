@@ -17,7 +17,7 @@ interface Apis {
     fun getTranscript(@Path("studentId") studentId: String,@Query("semester") semester: String=""): Call<Transcript>
 
     @GET("student-info")
-    fun getStudentId(): Call<Any?>
+    fun getStudentId(): Call<String?>
 
     @GET("grade/sheet/semester-index/{studentId}")
     fun getSemesterIndex(@Path("studentId") studentId: String):Call<String>
