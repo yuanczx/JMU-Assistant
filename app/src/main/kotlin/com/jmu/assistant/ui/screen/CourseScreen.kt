@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
-import com.jmu.assistant.ui.theme.Gray
 import com.jmu.assistant.ui.widgets.DropDownButton
 import com.jmu.assistant.ui.widgets.ProgressDialog
 import com.jmu.assistant.viewmodel.CourseViewModel
@@ -76,7 +75,7 @@ fun MainActivity.CourseScreen() {
                             viewModel.weekSelector = 1
                             viewModel.getCourseTable() //获取课程表
                             viewModel.makeCourseTable()
-                            viewModel.loadFinish = true //显示FloatActionBar
+                            viewModel.loadFinish = true
                         }
                     })
                 TextButton(onClick = { viewModel.showWeekSelector = true }) {
@@ -85,7 +84,7 @@ fun MainActivity.CourseScreen() {
                         color = MaterialTheme.colorScheme.background
                     )
                     DropdownMenu(
-                        modifier = Modifier.height(250.dp),
+                        modifier = Modifier.height(250.dp).background(MaterialTheme.colorScheme.background),
                         expanded = viewModel.showWeekSelector,
                         onDismissRequest = { viewModel.showWeekSelector = false }) {
                         repeat(18) {
@@ -188,7 +187,7 @@ fun MainActivity.CourseScreen() {
                                     .fillMaxSize()
                                     .padding(1.dp)
                                     .clip(RoundedCornerShape(7.dp))
-                                    .background(Gray)
+                                    .background(MaterialTheme.colorScheme.surface)
                             ) {
                                 viewModel.weekCourse[weekday]?.get(it * 2 + 1)?.let {
                                     Column(
