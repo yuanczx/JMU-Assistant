@@ -19,4 +19,5 @@
     <string name="login_information_expired">登录信息过期请重新登录</string>
     <string name="export_ics">导出为ICS文件</string>
     <string name="time">时间</string>
+    <string name="refresh">刷新</string>
 </resources>

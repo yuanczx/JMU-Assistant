@@ -1,6 +1,7 @@
 package com.jmu.assistant.models
 
 data class CourseTable(val studentTableVm: StudentTableVm)
+
 data class StudentTableVm(
     val id: Int,
     val name: String,

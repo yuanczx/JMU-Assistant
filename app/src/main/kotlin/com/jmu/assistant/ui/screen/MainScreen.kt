@@ -35,7 +35,7 @@ import com.jmu.assistant.ui.theme.TranscriptTheme
 fun MainActivity.MainScreen() {
     var bottomBar by remember { mutableStateOf(false) }
     val navController = rememberAnimatedNavController()
-    TranscriptTheme {
+    TranscriptTheme(dynamicColor = false) {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background

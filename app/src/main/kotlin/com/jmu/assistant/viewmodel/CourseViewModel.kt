@@ -90,12 +90,14 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
         val colors = listOf(Green, GeekBlue, Purplem, Orange)
         return (colors[random.nextInt(4)])
     }
+
     val courseTime = listOf(
         "8:00\n8:45", "8:50\n9:35",
         "10:05\n10:50", "10:55\n11:40",
         "14:00\n14:45", "14:50\n15:35",
-        "15:55\n16:40","16:45\n17:30",
-        "19:00\n19:45","19:50\n20:30")
+        "15:55\n16:40", "16:45\n17:30",
+        "19:00\n19:45", "19:50\n20:30"
+    )
     var weekSelector by mutableStateOf(1)
     var actionMore by mutableStateOf(false)
     var showWeekSelector by mutableStateOf(false)
@@ -105,7 +107,8 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
     private var courseTable: CourseTable? = null
     var loadCourse by mutableStateOf(false)
 
-    val weekCourse: MutableMap<Int, MutableMap<Int, Triple<String,String,String>>> = mutableMapOf()
+    val weekCourse: MutableMap<Int, MutableMap<Int, Triple<String, String, String>>> =
+        mutableMapOf()
 
     fun toast(s: String) = Toast.makeText(context(), s, Toast.LENGTH_SHORT).show()
 
@@ -115,13 +118,17 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
     fun makeCourseTable() {
         courseTable?.let { ct ->
             repeat(5) {
-                val courseMap = mutableMapOf<Int, Triple<String,String,String>>()
+                val courseMap = mutableMapOf<Int, Triple<String, String, String>>()
                 ct.studentTableVm.activities.forEach { activity ->
-                    if (activity.weekday == it+1&&activity.weekIndexes.contains(weekSelector)) {
-                        courseMap[activity.startUnit] = Triple(activity.courseName,activity.room?:"",activity.teachers.first())
+                    if (activity.weekday == it + 1 && activity.weekIndexes.contains(weekSelector)) {
+                        courseMap[activity.startUnit] = Triple(
+                            activity.courseName,
+                            activity.room ?: "",
+                            activity.teachers.first() ?: ""
+                        )
                     }
                 }
-                weekCourse[it+1] = courseMap
+                weekCourse[it + 1] = courseMap
             }
         }
     }
@@ -146,6 +153,7 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
                 loadCourse = false
             }
         } catch (e: Exception) {
+            loadCourse = false
             Log.e(e.toString(), e.message.toString())
             Toast.makeText(
                 context(),
@@ -157,17 +165,25 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
 
     @SuppressLint("SdCardPath")
     @RequiresApi(Build.VERSION_CODES.O)
-    fun exportICS(){
-        val icsFile = File("/data/data/com.jmu.assistant/files/course${LocalTime.now()}.ics")
-        if (!icsFile.exists()) icsFile.createNewFile()
+    fun exportICS() {
+        val fileDire = File("/data/data/com.jmu.assistant/files/CourseTable")
+        fileDire.deleteRecursively()
+        fileDire.mkdirs()
+        val icsFile = File("${fileDire.path}/Course-${LocalTime.now()}.ics")
+        icsFile.createNewFile()
         val intent = Intent()
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         intent.action = Intent.ACTION_VIEW
-        intent.data = FileProvider.getUriForFile(context(), "com.jmu.assistant.fileprovider",icsFile)
+        intent.data =
+            FileProvider.getUriForFile(context(), "com.jmu.assistant.fileprovider", icsFile)
         icsFile.writeText(ics)
         toast(R.string.select_app_toast)
-        context().startActivity(intent)
+        try {
+            context().startActivity(intent)
+        } catch (e: Exception) {
+            Log.d("StartActivity", e.message.toString())
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
