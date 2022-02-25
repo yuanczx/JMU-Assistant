@@ -20,3 +20,17 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 -keep class com.jmu.assistant.models.**{*;}
+-assumenosideeffects class android.util.Log {
+
+public static *** d(...);
+
+public static *** v(...);
+
+public static *** i(...);
+
+public static *** e(...);
+
+public static *** w(...);
+
+}
+

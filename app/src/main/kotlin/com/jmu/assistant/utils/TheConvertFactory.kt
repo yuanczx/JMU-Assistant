@@ -15,10 +15,10 @@ class TheConvertFactory : Converter.Factory() {
         return null
     }
 
-}
-
-class StringConverter : Converter<ResponseBody, String> {
-    override fun convert(value: ResponseBody): String {
-        return value.string()
+    inner class StringConverter : Converter<ResponseBody, String> {
+        override fun convert(value: ResponseBody): String {
+            return value.string()
+        }
     }
 }
+

@@ -20,4 +20,21 @@
     <string name="export_ics">导出为ICS文件</string>
     <string name="time">时间</string>
     <string name="refresh">刷新</string>
+    <string name="menu">菜单</string>
+    <string name="login_fail">登录失败，请检查账号密码是否正确</string>
+    <string name="makesure_input_correct">请正确输入用户及密码</string>
+    <string name="show_password">显示密码</string>
+    <string name="hide_password">隐藏密码</string>
+    <string name="user">用户</string>
+    <string name="please_password">请输入密码</string>
+    <string name="password">密码</string>
+    <string name="user_place_holder">学号/证件号/手机号</string>
+    <string name="remember_password">记住密码</string>
+    <string name="relogin">退出登录</string>
+    <string name="menu_more">更多</string>
+    <string name="network_error">网络错误</string>
+    <string name="check_update">检查更新</string>
+    <string name="checking_update">正在检查更新</string>
+    <string name="newest">未发现可用更新</string>
+    <string name="new_version">检查到新版本，是否更新？</string>
 </resources>

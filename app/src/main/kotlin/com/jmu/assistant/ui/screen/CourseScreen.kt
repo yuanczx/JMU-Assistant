@@ -11,11 +11,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -23,16 +23,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
-import com.jmu.assistant.ui.widgets.DropDownButton
+import com.jmu.assistant.ui.widgets.IconDropMenu
 import com.jmu.assistant.ui.widgets.ProgressDialog
+import com.jmu.assistant.ui.widgets.TextButtonDropMenu
+import com.jmu.assistant.ui.widgets.TopBar
 import com.jmu.assistant.viewmodel.CourseViewModel
 import kotlinx.coroutines.launch
 
@@ -42,11 +44,10 @@ import kotlinx.coroutines.launch
 @SuppressLint("SdCardPath")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MainActivity.CourseScreen() {
+fun CourseScreen() {
     val viewModel: CourseViewModel = viewModel()
 
     LaunchedEffect(key1 = null, block = {
-        mainViewModel.showTopBar = false
         viewModel.getCourseTable()
         viewModel.makeCourseTable()
         viewModel.loadFinish = true
@@ -62,74 +63,51 @@ fun MainActivity.CourseScreen() {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        SmallTopAppBar(colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.background,
-            actionIconContentColor = MaterialTheme.colorScheme.primary
-        ),
-            title = { Text(text = stringResource(id = R.string.Course)) },
-            actions = {
-                DropDownButton(
-                    items = menuItem, modifier = Modifier
-                        .padding(0.dp), onClick = {
-                        if (viewModel.semesterIndex != it) scope.launch {
-                            viewModel.semesterIndex = it //设置索引
-                            viewModel.weekSelector = 1
-                            viewModel.getCourseTable() //获取课程表
-                            viewModel.makeCourseTable()
-                            viewModel.loadFinish = true
-                        }
-                    })
-                TextButton(onClick = { viewModel.showWeekSelector = true }) {
-                    Text(
-                        text = "第${viewModel.weekSelector}周",
-                        color = MaterialTheme.colorScheme.background
-                    )
-                    DropdownMenu(
-                        modifier = Modifier
-                            .height(250.dp)
-                            .background(MaterialTheme.colorScheme.background),
-                        expanded = viewModel.showWeekSelector,
-                        onDismissRequest = { viewModel.showWeekSelector = false }) {
-                        repeat(18) {
-                            DropdownMenuItem(onClick = {
-                                viewModel.loadFinish = false
-                                viewModel.weekSelector =
-                                    it + 1;viewModel.makeCourseTable();viewModel.showWeekSelector =
-                                false;viewModel.loadFinish = true
-                            }) {
-                                Text(text = "第${it + 1}周")
-                            }
-                        }
-                    }
-                }
 
-                IconButton(onClick = { viewModel.actionMore = !viewModel.actionMore }) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "More",
-                        tint = MaterialTheme.colorScheme.background
-                    )
-                    DropdownMenu(
-                        modifier = Modifier.background(MaterialTheme.colorScheme.background),
-                        expanded = viewModel.actionMore,
-                        onDismissRequest = { viewModel.actionMore = false }) {
-                        DropdownMenuItem(onClick = {
+        TopBar(stringId = R.string.Course) {
+            TextButtonDropMenu(title = menuItem[viewModel.semesterIndex], list = menuItem) {
+                if (viewModel.semesterIndex != it) scope.launch {
+                    viewModel.semesterIndex = it //设置索引
+                    viewModel.weekSelector = 1
+                    viewModel.getCourseTable() //获取课程表
+                    viewModel.makeCourseTable()
+                    viewModel.loadFinish = true
+                }
+            }
+
+            TextButtonDropMenu(
+                title = "第${viewModel.weekSelector}周",
+                repeatTimes = 18,
+                item = { "第${it+1}周" })
+            {
+                viewModel.loadFinish = false
+                viewModel.weekSelector = it + 1
+                viewModel.makeCourseTable()
+                viewModel.loadFinish = true
+            }
+
+
+            IconDropMenu(
+                painter = rememberVectorPainter(image = Icons.Default.MoreVert),
+                contentDescriptor = "More",
+                list = listOf(
+                    stringResource(id = R.string.export_ics),
+                    stringResource(id = R.string.refresh)
+                ),
+                onClick = {
+                    when (it) {
+                        0 -> {
                             viewModel.buildICS()
                             viewModel.exportICS()
-                        }) {
-                            Text(text = stringResource(R.string.export_ics))
                         }
-                        DropdownMenuItem(onClick = {
+                        1 -> {
                             scope.launch {
                                 viewModel.getCourseTable()
                             }
-                        }) {
-                            Text(text = stringResource(R.string.refresh))
                         }
                     }
-                }
-            })
+                })
+        }
 
 
         Row(
@@ -190,7 +168,10 @@ fun MainActivity.CourseScreen() {
                                     else Color.Transparent
                                 )
                             }
-                            if (it == 3 || it == 1) Divider(Modifier.weight(0.025f), color = MaterialTheme.colorScheme.surface)
+                            if (it == 3 || it == 1) Divider(
+                                Modifier.weight(0.025f),
+                                color = MaterialTheme.colorScheme.surface
+                            )
                         }
                         else repeat(5) {
                             Box(
@@ -199,7 +180,11 @@ fun MainActivity.CourseScreen() {
                                     .fillMaxSize()
                                     .padding(1.dp)
                                     .clip(RoundedCornerShape(7.dp))
-                                    .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.35f))
+                                    .background(
+                                        MaterialTheme.colorScheme.secondaryContainer.copy(
+                                            alpha = 0.35f
+                                        )
+                                    )
                             ) {
                                 viewModel.weekCourse[weekday]?.get(it * 2 + 1)?.let {
                                     Column(
@@ -241,7 +226,10 @@ fun MainActivity.CourseScreen() {
                                     }
                                 }
                             }
-                            if (it == 3 || it == 1) Divider(Modifier.weight(0.025f), color = MaterialTheme.colorScheme.surface)
+                            if (it == 3 || it == 1) Divider(
+                                Modifier.weight(0.025f),
+                                color = MaterialTheme.colorScheme.surface
+                            )
                         }
                         Divider(Modifier.height(10.dp), color = MaterialTheme.colorScheme.surface)
                     }
@@ -250,6 +238,5 @@ fun MainActivity.CourseScreen() {
 
     }
 
-    mainViewModel.title = stringResource(id = R.string.Course)
     if (viewModel.loadCourse) ProgressDialog(stringResource(id = R.string.wait_loading))
 }

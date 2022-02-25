@@ -97,8 +97,6 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
         "19:00\n19:45", "19:50\n20:30"
     )
     var weekSelector by mutableStateOf(1)
-    var actionMore by mutableStateOf(false)
-    var showWeekSelector by mutableStateOf(false)
     var loadFinish by mutableStateOf(false)
     private var ics by mutableStateOf("")
     var semesterIndex by mutableStateOf(0)

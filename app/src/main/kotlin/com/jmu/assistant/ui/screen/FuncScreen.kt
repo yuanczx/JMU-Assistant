@@ -10,10 +10,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
-import com.jmu.assistant.MainActivity
-import com.jmu.assistant.R
 import com.jmu.assistant.entity.ContentNav
 import com.jmu.assistant.ui.widgets.ImageCardItem
 
@@ -21,8 +18,7 @@ import com.jmu.assistant.ui.widgets.ImageCardItem
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @Composable
-fun MainActivity.FuncScreen(navController: NavHostController) {
-    mainViewModel.title = stringResource(id = R.string.app_name)
+fun FuncScreen(navController: NavHostController) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {

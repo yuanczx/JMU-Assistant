@@ -1,9 +1,7 @@
 package com.jmu.assistant.utils
 
-import com.jmu.assistant.entity.ContentNav
 import com.jmu.assistant.models.CourseTable
 import com.jmu.assistant.models.Transcript
-import org.jsoup.Jsoup
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path

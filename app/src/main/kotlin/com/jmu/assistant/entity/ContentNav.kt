@@ -12,4 +12,5 @@ sealed class ContentNav(
     object Transcript : ContentNav("Transcript", R.string.Transcript, R.drawable.ic_transcript)
     object Course : ContentNav("Course", R.string.Course, R.drawable.ic_course)
     object Login : ContentNav("Login", R.string.Login)
+    object Menu : ContentNav("Menu",R.string.menu,R.drawable.ic_func)
 }
