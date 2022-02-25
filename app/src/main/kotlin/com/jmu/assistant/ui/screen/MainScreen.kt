@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
@@ -28,6 +29,7 @@ import com.jmu.assistant.entity.BtmNav
 import com.jmu.assistant.entity.ContentNav
 import com.jmu.assistant.ui.theme.TranscriptTheme
 
+@ExperimentalFoundationApi
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -35,7 +37,7 @@ import com.jmu.assistant.ui.theme.TranscriptTheme
 fun MainActivity.MainScreen() {
     var bottomBar by remember { mutableStateOf(false) }
     val navController = rememberAnimatedNavController()
-    TranscriptTheme(dynamicColor = false) {
+    TranscriptTheme(dynamicColor = true) {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background

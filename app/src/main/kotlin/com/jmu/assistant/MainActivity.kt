@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -17,10 +18,12 @@ import com.jmu.assistant.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 
 
+@ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
 val MainActivity.dataStore by preferencesDataStore(name = "main")
 
+@ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
 class MainActivity : ComponentActivity() {

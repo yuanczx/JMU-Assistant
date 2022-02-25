@@ -19,6 +19,7 @@ import coil.compose.rememberImagePainter
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @Composable
@@ -35,7 +36,7 @@ fun MainActivity.UserScreen() {
                     .fillMaxWidth()
                     .padding(top = 5.dp, bottom = 15.dp)
                     .clip(RoundedCornerShape(25.dp))
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Image(
                 modifier = Modifier
@@ -60,7 +61,7 @@ fun MainActivity.UserScreen() {
                     maxLine = if (maxLine == 5) 50 else 5
                 }
                 .clip(RoundedCornerShape(25.dp))
-                .background(MaterialTheme.colorScheme.surface)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 Text(
                     text = stringResource(id = R.string.basic_info),

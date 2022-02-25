@@ -2,6 +2,7 @@ package com.jmu.assistant.viewmodel
 
 import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +17,7 @@ import org.jsoup.select.Elements
 import retrofit2.awaitResponse
 
 
+@ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
 class TranscriptViewModel : ViewModel() {

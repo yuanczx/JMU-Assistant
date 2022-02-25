@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -35,6 +36,7 @@ import com.jmu.assistant.ui.widgets.ProgressDialog
 import com.jmu.assistant.viewmodel.CourseViewModel
 import kotlinx.coroutines.launch
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @SuppressLint("SdCardPath")
@@ -188,7 +190,7 @@ fun MainActivity.CourseScreen() {
                                     else Color.Transparent
                                 )
                             }
-                            if (it == 3 || it == 1) Divider(Modifier.weight(0.025f))
+                            if (it == 3 || it == 1) Divider(Modifier.weight(0.025f), color = MaterialTheme.colorScheme.surface)
                         }
                         else repeat(5) {
                             Box(
@@ -197,7 +199,7 @@ fun MainActivity.CourseScreen() {
                                     .fillMaxSize()
                                     .padding(1.dp)
                                     .clip(RoundedCornerShape(7.dp))
-                                    .background(MaterialTheme.colorScheme.surface)
+                                    .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.35f))
                             ) {
                                 viewModel.weekCourse[weekday]?.get(it * 2 + 1)?.let {
                                     Column(
@@ -239,9 +241,9 @@ fun MainActivity.CourseScreen() {
                                     }
                                 }
                             }
-                            if (it == 3 || it == 1) Divider(Modifier.weight(0.025f))
+                            if (it == 3 || it == 1) Divider(Modifier.weight(0.025f), color = MaterialTheme.colorScheme.surface)
                         }
-                        Divider(Modifier.height(10.dp))
+                        Divider(Modifier.height(10.dp), color = MaterialTheme.colorScheme.surface)
                     }
                 }
             }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import android.webkit.*
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -23,6 +24,7 @@ import com.jmu.assistant.entity.ContentNav
 import com.jmu.assistant.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @SuppressLint("SetJavaScriptEnabled")

@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.first
 import org.jsoup.Jsoup
 import retrofit2.awaitResponse
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 class MainViewModel(application: Application) : AndroidViewModel(application) {

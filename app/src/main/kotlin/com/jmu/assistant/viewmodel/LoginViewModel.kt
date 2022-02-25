@@ -1,16 +1,9 @@
 package com.jmu.assistant.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.jmu.assistant.MainActivity.Companion.cookie
-import com.jmu.assistant.MainActivity.Companion.studentID
-import com.jmu.assistant.utils.TheRetrofit
-import kotlinx.coroutines.launch
-import retrofit2.awaitResponse
 
 class LoginViewModel : ViewModel() {
     companion object {

@@ -2,11 +2,12 @@ package com.jmu.assistant.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
@@ -25,11 +26,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
 import com.jmu.assistant.ui.widgets.AlertDialog
-import com.jmu.assistant.ui.widgets.GradeList
+import com.jmu.assistant.ui.widgets.GradeItem
 import com.jmu.assistant.viewmodel.TranscriptViewModel
 import kotlinx.coroutines.launch
 import org.jsoup.nodes.Element
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @Composable
@@ -41,11 +43,11 @@ fun MainActivity.TranscriptScreen() {
     fun clickTab(index: Int, element: Element) {
         if (viewModel.selectedTab == index) return
         viewModel.selectedTab = index
-        viewModel.semesterId = element.`val`() }
+        viewModel.semesterId = element.`val`()
+    }
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         //显示学期Tabs
@@ -78,13 +80,25 @@ fun MainActivity.TranscriptScreen() {
         }
 
         //显示成绩列表
-        if (!viewModel.loading) viewModel.semesterSelector()?.let {
-            GradeList(courseInfos = it)
+        if (!viewModel.loading) viewModel.semesterSelector()?.let { courses ->
+            LazyVerticalGrid(cells = GridCells.Fixed(2), content = {
+                items(courses.size) {
+                    GradeItem(
+                        title = courses[it].course.nameZh,
+                        subTitle = courses[it].gaGrade,
+                        gpa = courses[it].gp.toString(),
+                        info = courses[it].course.credits.toString()
+                    )
+                }
+            })
         }
 
         //加载错误显示提示框
         if (viewModel.error) AlertDialog(title = "请求错误", text = "加载失败是否重新尝试？",
-            onConfirm = { viewModel.error = false;scope.launch { viewModel.getSemesterIndex();viewModel.getGrade() } },
+            onConfirm = {
+                viewModel.error =
+                    false;scope.launch { viewModel.getSemesterIndex();viewModel.getGrade() }
+            },
             onDismiss = { viewModel.error = false })
     }
 

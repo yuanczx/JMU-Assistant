@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,10 +21,6 @@ import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
 import com.jmu.assistant.models.Activity
 import com.jmu.assistant.models.CourseTable
-import com.jmu.assistant.ui.theme.GeekBlue
-import com.jmu.assistant.ui.theme.Green
-import com.jmu.assistant.ui.theme.Orange
-import com.jmu.assistant.ui.theme.Purplem
 import com.jmu.assistant.utils.TheRetrofit
 import retrofit2.awaitResponse
 import java.io.File
@@ -31,6 +28,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.util.*
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 class CourseViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -85,11 +83,11 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
     }
 
 
-    fun randomColor(): androidx.compose.ui.graphics.Color {
-        val random = Random()
-        val colors = listOf(Green, GeekBlue, Purplem, Orange)
-        return (colors[random.nextInt(4)])
-    }
+//    fun randomColor(): androidx.compose.ui.graphics.Color {
+//        val random = Random()
+//        val colors = listOf(Green, GeekBlue, Purple, Orange)
+//        return (colors[random.nextInt(4)])
+//    }
 
     val courseTime = listOf(
         "8:00\n8:45", "8:50\n9:35",
@@ -112,7 +110,7 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
 
     fun toast(s: String) = Toast.makeText(context(), s, Toast.LENGTH_SHORT).show()
 
-    fun toast(@StringRes id: Int) = toast(context().getString(id))
+    private fun toast(@StringRes id: Int) = toast(context().getString(id))
 
 
     fun makeCourseTable() {
@@ -124,7 +122,7 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
                         courseMap[activity.startUnit] = Triple(
                             activity.courseName,
                             activity.room ?: "",
-                            activity.teachers.first() ?: ""
+                            activity.teachers.first()
                         )
                     }
                 }
