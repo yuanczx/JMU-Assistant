@@ -35,6 +35,7 @@ class TranscriptViewModel : ViewModel() {
             val response = TheRetrofit.api.getTranscript(MainActivity.studentID).awaitResponse()
             if (response.isSuccessful) {
                 transcript = response.body()
+//                transcript = Gson().fromJson(transcriptJson,Transcript::class.java)
                 transcript?.semesterId2studentGrades?.semester_21_22_1?.get(0)?.course?.let {
                     Log.d("json", it.nameZh)
                 }

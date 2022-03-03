@@ -2,13 +2,11 @@ package com.jmu.assistant.viewmodel
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -16,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.FileProvider
-import androidx.lifecycle.AndroidViewModel
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
 import com.jmu.assistant.models.Activity
@@ -30,9 +27,8 @@ import java.util.*
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
-class CourseViewModel(application: Application) : AndroidViewModel(application) {
+class CourseViewModel(application: Application) : BaseViewModel(application) {
 
-    private fun context(): Context = getApplication<Application>().applicationContext
 
     companion object {
 
@@ -108,7 +104,6 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
 
     fun toast(s: String) = Toast.makeText(context(), s, Toast.LENGTH_SHORT).show()
 
-    private fun toast(@StringRes id: Int) = toast(context().getString(id))
 
 
     fun makeCourseTable() {
@@ -141,6 +136,7 @@ class CourseViewModel(application: Application) : AndroidViewModel(application) 
             ).awaitResponse()
             if (response.isSuccessful) {
                 courseTable = response.body()
+//                courseTable = Gson().fromJson(courseJson,CourseTable::class.java)
                 courseTable?.let { course ->
                     course.studentTableVm.activities.forEach {
                         it.weekIndexes.sort()

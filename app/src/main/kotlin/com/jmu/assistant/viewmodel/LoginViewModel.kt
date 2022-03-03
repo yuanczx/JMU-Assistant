@@ -2,7 +2,6 @@ package com.jmu.assistant.viewmodel
 
 import android.app.Application
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -10,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.lifecycle.AndroidViewModel
 import com.jmu.assistant.R
 import com.jmu.assistant.utils.awaitResponse
 import okhttp3.FormBody
@@ -18,7 +16,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okio.IOException
 
-class LoginViewModel(application: Application) : AndroidViewModel(application) {
+class LoginViewModel(application: Application) : BaseViewModel(application) {
     companion object {
         private const val BASE_URL_LOGIN =
             "https://cas.paas.jmu.edu.cn/cas/login?service=http%3A%2F%2Fjwxt.jmu.edu.cn%2Fstudent%2Fsso%2Flogin"
@@ -39,7 +37,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             .build()
     }
 
-    private fun context() = getApplication<Application>().applicationContext
     fun changePasswordVisual() {
         passwordHidden = !passwordHidden
     }
@@ -71,10 +68,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         .build()
 
 
-    private fun toast(msg: String) {
-        Toast.makeText(context(), msg, Toast.LENGTH_SHORT).show()
-    }
-
     @ExperimentalAnimationApi
     @ExperimentalMaterial3Api
     @ExperimentalFoundationApi
@@ -83,7 +76,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
         //User Password 格式基本判断
         if (userName.isBlank() || passWord.isBlank() || userName.length < 10) {
-            toast(context().getString(R.string.makesure_input_correct))
+            toast(R.string.makesure_input_correct)
             return false
         }
 
@@ -96,7 +89,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         } catch (e: IOException) {
             //网络错误
             Log.d(TAG, e.message!!)
-            toast(context().getString(R.string.network_error))
+            toast(R.string.network_error)
             return false
         }
 
@@ -115,7 +108,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         val login = lastRsp.header("location").toString() == FLAG_URL
 
         //登录状态判断
-        if (!login) toast(context().getString(R.string.login_fail)) else {
+        if (!login) toast(R.string.login_fail) else {
             mCookie = localCookie
         }
         return login

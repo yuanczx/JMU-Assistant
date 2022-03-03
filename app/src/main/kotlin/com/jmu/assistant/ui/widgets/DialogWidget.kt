@@ -12,17 +12,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.jmu.assistant.R
 
 @Composable
 fun AlertDialog(
-    modifier: Modifier=Modifier ,
+    modifier: Modifier=Modifier,
     title: String,
     text: String?=null,
-    dismissText: String = "取消",
-    confirmText: String = "确定",
+    dismissText: String = stringResource(R.string.dismiss),
+    confirmText: String = stringResource(R.string.confirm),
     onDismiss: () -> Unit = {},
     onConfirm: () -> Unit = {},
     content: @Composable ()->Unit={}

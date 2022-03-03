@@ -58,7 +58,7 @@ fun MainActivity.BottomNavScreen(mainNavHostController: NavHostController) {
                     onClick = {
                         when (it) {
                             0 -> scope.launch {
-                                dataStore.edit { it[MainActivity.COOKIE_KEY] = "" }
+                                dataStore.edit {ds-> ds[MainActivity.COOKIE_KEY] = "" }
                                 MainActivity.cookie = ""
                                 mainNavHostController.navigate(ContentNav.Login.route) {
                                     launchSingleTop = true

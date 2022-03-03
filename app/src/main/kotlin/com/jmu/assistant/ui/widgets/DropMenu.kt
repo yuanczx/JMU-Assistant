@@ -12,14 +12,14 @@ fun TextButtonDropMenu(
     title: String,
     list: List<String>,
     titleColor: Color = MaterialTheme.colorScheme.onPrimary,
-    itemTextColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    itemTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: (Int) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     TextButton(onClick = { expanded = !expanded }) {
         Text(text = title, color = titleColor)
         DropdownMenu(
-            modifier = Modifier.background(MaterialTheme.colorScheme.secondaryContainer),
+            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant),
             expanded = expanded,
             onDismissRequest = { expanded = false }) {
             list.forEachIndexed { index, value ->
@@ -38,7 +38,7 @@ fun TextButtonDropMenu(
     title: String,
     repeatTimes: Int,
     titleColor: Color = MaterialTheme.colorScheme.onPrimary,
-    itemTextColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    itemTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     item: (Int) -> String,
     onClick: (Int) -> Unit,
 ) {
@@ -46,7 +46,7 @@ fun TextButtonDropMenu(
     TextButton(onClick = { expanded = !expanded }) {
         Text(text = title, color = titleColor)
         DropdownMenu(
-            modifier = Modifier.background(MaterialTheme.colorScheme.secondaryContainer),
+            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant),
             expanded = expanded,
             onDismissRequest = { expanded = false }) {
             repeat(repeatTimes) {
@@ -67,14 +67,14 @@ fun IconDropMenu(
     contentDescriptor: String,
     list: List<String>,
     tint: Color = MaterialTheme.colorScheme.onPrimary,
-    itemTextColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
+    itemTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: (Int) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     IconButton(onClick = { expanded = !expanded }) {
         Icon(painter = painter, contentDescription = contentDescriptor, tint = tint)
         DropdownMenu(
-            modifier = Modifier.background(MaterialTheme.colorScheme.secondaryContainer),
+            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant),
             expanded = expanded,
             onDismissRequest = { expanded = false }) {
             list.forEachIndexed { index, value ->

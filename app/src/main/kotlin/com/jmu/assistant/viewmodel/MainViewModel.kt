@@ -1,6 +1,5 @@
 package com.jmu.assistant.viewmodel
 
-import android.app.Application
 import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -10,7 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.MainActivity.Companion.COOKIE_KEY
 import com.jmu.assistant.MainActivity.Companion.studentID
@@ -23,7 +22,7 @@ import retrofit2.awaitResponse
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel : ViewModel() {
 
     var startRoute by mutableStateOf(ContentNav.Menu.route)
 
@@ -65,10 +64,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             Log.e(e.toString(), e.message.toString())
         }
     }
-
-
-
-
 
 
 }
