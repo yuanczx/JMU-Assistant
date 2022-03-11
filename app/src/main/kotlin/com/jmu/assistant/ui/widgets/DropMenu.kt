@@ -15,6 +15,13 @@ fun TextButtonDropMenu(
     itemTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: (Int) -> Unit,
 ) {
+    /**
+     * @Author yuanczx
+     * @Description 文字样式下拉菜单
+     * @Date 2022/3/10 19:30
+     * @Params [title, list, titleColor, itemTextColor, onClick]
+     * @Return
+     **/
     var expanded by remember { mutableStateOf(false) }
     TextButton(onClick = { expanded = !expanded }) {
         Text(text = title, color = titleColor)
@@ -42,6 +49,13 @@ fun TextButtonDropMenu(
     item: (Int) -> String,
     onClick: (Int) -> Unit,
 ) {
+    /**
+     * @Author yuanczx
+     * @Description 重复文字下拉菜单
+     * @Date 2022/3/10 19:31
+     * @Params [title, repeatTimes, titleColor, itemTextColor, item, onClick]
+     * @Return
+     **/
     var expanded by remember { mutableStateOf(false) }
     TextButton(onClick = { expanded = !expanded }) {
         Text(text = title, color = titleColor)
@@ -70,6 +84,13 @@ fun IconDropMenu(
     itemTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: (Int) -> Unit,
 ) {
+    /**
+     * @Author yuanczx
+     * @Description 图标样式下拉菜单
+     * @Date 2022/3/10 19:31
+     * @Params [painter, contentDescriptor, list, tint, itemTextColor, onClick]
+     * @Return
+     **/
     var expanded by remember { mutableStateOf(false) }
     IconButton(onClick = { expanded = !expanded }) {
         Icon(painter = painter, contentDescription = contentDescriptor, tint = tint)

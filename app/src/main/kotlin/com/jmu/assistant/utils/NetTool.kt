@@ -8,7 +8,14 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 
-suspend fun Call.awaitResponse():Response{
+suspend fun Call.awaitResponse(): Response {
+    /**
+     * @Author yuanczx
+     * @Description OkHttp 协程请求封装
+     * @Date 2022/3/11 8:57
+     * @Params []
+     * @Return Response
+     **/
     return suspendCancellableCoroutine {
 
         it.invokeOnCancellation {

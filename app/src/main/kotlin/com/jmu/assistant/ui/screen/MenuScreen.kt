@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -41,10 +42,21 @@ import kotlinx.coroutines.launch
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
-fun MainActivity.BottomNavScreen(mainNavHostController: NavHostController) {
+fun MainActivity.MenuScreen(mainNavHostController: NavHostController) {
+
+    /**
+     * @Author yuanczx
+     * @Description 菜单界面
+     * @Date 2022/3/10 19:24
+     * @Params [mainNavHostController]
+     * @Return null
+     **/
     val viewModel: MenuViewModel = viewModel()
     val navController = rememberAnimatedNavController()
     val scope = rememberCoroutineScope()
+    LaunchedEffect(key1 = null, block = {
+        viewModel.checkUpdate(false)
+    })
     Scaffold(
         topBar = {
             TopBar(actions = {
@@ -58,7 +70,7 @@ fun MainActivity.BottomNavScreen(mainNavHostController: NavHostController) {
                     onClick = {
                         when (it) {
                             0 -> scope.launch {
-                                dataStore.edit {ds-> ds[MainActivity.COOKIE_KEY] = "" }
+                                dataStore.edit { ds -> ds[MainActivity.COOKIE_KEY] = "" }
                                 MainActivity.cookie = ""
                                 mainNavHostController.navigate(ContentNav.Login.route) {
                                     launchSingleTop = true
@@ -99,7 +111,7 @@ fun MainActivity.BottomNavScreen(mainNavHostController: NavHostController) {
                 }
             ) {
                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    Text(text = stringResource(id = R.string.new_version)+"\n-----------------------------------")
+                    Text(text = stringResource(id = R.string.new_version) + "\n-----------------------------------")
                     Text(text = viewModel.versionName)
                     Text(text = viewModel.description)
                 }
@@ -111,6 +123,15 @@ fun MainActivity.BottomNavScreen(mainNavHostController: NavHostController) {
 
 @Composable
 fun BottomBar(navController: NavHostController) {
+
+    /**
+     * @Author yuanczx
+     * @Description 底部导航栏
+     * @Date 2022/3/10 19:24
+     * @Params [navController]
+     * @Return null
+     **/
+
     NavigationBar(
         contentColor = MaterialTheme.colorScheme.primary,
         containerColor = MaterialTheme.colorScheme.background

@@ -19,6 +19,13 @@ import com.jmu.assistant.ui.widgets.ImageCardItem
 @ExperimentalMaterial3Api
 @Composable
 fun FuncScreen(navController: NavHostController) {
+    /**
+     * @Author yuanczx
+     * @Description 功能界面
+     * @Date 2022/3/10 19:27
+     * @Params [navController]
+     * @Return
+     **/
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -32,9 +39,9 @@ fun FuncScreen(navController: NavHostController) {
             ) {
                 val navItems = listOf(ContentNav.Course, ContentNav.Transcript)
                 LazyVerticalGrid(cells = GridCells.Fixed(2), content = {
-                    items(navItems){
+                    items(navItems) {
                         ImageCardItem(label = it.stringId, drawableRes = it.drawableId!!) {
-                            navController.navigate(it.route){
+                            navController.navigate(it.route) {
                                 launchSingleTop = true
                             }
                         }

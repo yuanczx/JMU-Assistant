@@ -42,6 +42,13 @@ fun TranscriptTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    /**
+     * @Author yuanczx
+     * @Description 默认主题
+     * @Date 2022/3/10 19:32
+     * @Params [darkTheme, dynamicColor, content]
+     * @Return
+     **/
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current

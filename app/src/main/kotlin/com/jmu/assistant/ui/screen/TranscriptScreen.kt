@@ -22,8 +22,10 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.jmu.assistant.R
 import com.jmu.assistant.ui.widgets.AlertDialog
+import com.jmu.assistant.ui.widgets.BackIcon
 import com.jmu.assistant.ui.widgets.GradeItem
 import com.jmu.assistant.ui.widgets.TopBar
 import com.jmu.assistant.viewmodel.TranscriptViewModel
@@ -34,13 +36,26 @@ import org.jsoup.nodes.Element
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @Composable
-fun TranscriptScreen() {
+fun TranscriptScreen(navHostController: NavHostController) {
+    /**
+     * @Author yuanczx
+     * @Description 成绩单界面
+     * @Date 2022/3/10 19:25
+     * @Params []
+     * @Return
+     **/
     val viewModel: TranscriptViewModel = viewModel()
     val scope = rememberCoroutineScope()
     val scrollBehavior = remember { TopAppBarDefaults.enterAlwaysScrollBehavior() }
 
-    //Tab点击事件
     fun clickTab(index: Int, element: Element) {
+        /**
+         * @Author yuanczx
+         * @Description 学期Tab点击事件
+         * @Date 2022/3/10 19:25
+         * @Params [index, element]
+         * @Return
+         **/
         if (viewModel.selectedTab == index) return
         viewModel.selectedTab = index
         viewModel.semesterId = element.`val`()
@@ -49,7 +64,9 @@ fun TranscriptScreen() {
         modifier = Modifier
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = { TopBar(R.string.Transcript, scrollBehavior) }
+        topBar = { TopBar(R.string.Transcript, scrollBehavior, navigationIcon = { BackIcon(
+            navController = navHostController
+        )}) }
     ) {
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
 

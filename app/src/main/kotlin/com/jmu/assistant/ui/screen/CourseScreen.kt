@@ -5,9 +5,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
@@ -30,11 +28,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.jmu.assistant.R
-import com.jmu.assistant.ui.widgets.IconDropMenu
-import com.jmu.assistant.ui.widgets.ProgressDialog
-import com.jmu.assistant.ui.widgets.TextButtonDropMenu
-import com.jmu.assistant.ui.widgets.TopBar
+import com.jmu.assistant.ui.widgets.*
 import com.jmu.assistant.viewmodel.CourseViewModel
 import kotlinx.coroutines.launch
 
@@ -44,7 +40,14 @@ import kotlinx.coroutines.launch
 @SuppressLint("SdCardPath")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CourseScreen() {
+fun CourseScreen(navController: NavHostController) {
+    /**
+     * @Author yuanczx
+     * @Description 课表界面
+     * @Date 2022/3/10 19:26
+     * @Params []
+     * @Return
+     **/
     val viewModel: CourseViewModel = viewModel()
 
     LaunchedEffect(key1 = null, block = {
@@ -52,10 +55,7 @@ fun CourseScreen() {
         viewModel.makeCourseTable()
         viewModel.loadFinish = true
     })
-    val menuItem = listOf(
-        stringResource(R.string.second_semester_21_22),
-        stringResource(R.string.first_semester_21_22)
-    )
+
     val scope = rememberCoroutineScope()
 
     Column(
@@ -64,8 +64,11 @@ fun CourseScreen() {
             .background(MaterialTheme.colorScheme.background)
     ) {
 
-        TopBar(stringId = R.string.Course) {
-            TextButtonDropMenu(title = menuItem[viewModel.semesterIndex], list = menuItem) {
+        TopBar(stringId = R.string.Course, navigationIcon = { BackIcon(navController) }) {
+            TextButtonDropMenu(
+                title = viewModel.semesterItem[viewModel.semesterIndex],
+                list = viewModel.semesterItem
+            ) {
                 if (viewModel.semesterIndex != it) scope.launch {
                     viewModel.semesterIndex = it //设置索引
                     viewModel.weekSelector = 1
@@ -78,7 +81,7 @@ fun CourseScreen() {
             TextButtonDropMenu(
                 title = "第${viewModel.weekSelector}周",
                 repeatTimes = 18,
-                item = { "第${it+1}周" })
+                item = { "第${it + 1}周" })
             {
                 viewModel.loadFinish = false
                 viewModel.weekSelector = it + 1
@@ -118,24 +121,28 @@ fun CourseScreen() {
         ) {
             repeat(6) {
                 if (it == 0) Text(
-                    modifier = Modifier.weight(0.1f),
+                    modifier = Modifier.weight(0.08f),
                     text = stringResource(R.string.time),
                     textAlign = TextAlign.Center
                 )
                 else Text(
-                    modifier = Modifier.weight(0.18f),
-                    text = "周 $it",
+                    modifier = Modifier.weight(0.184f),
+                    text = viewModel.weekDayName[it - 1],
                     textAlign = TextAlign.Center
                 )
             }
         }
 
         if (viewModel.loadFinish)
-            Row(Modifier.fillMaxSize()) {
+            Row(
+                Modifier
+                    .fillMaxSize()
+                    .horizontalScroll(rememberScrollState())
+            ) {
                 repeat(6) { weekday ->
                     Column(
                         modifier = Modifier
-                            .weight(if (weekday == 0) 0.1f else 0.18f)
+                            .weight(if (weekday == 0) 0.08f else 0.184f)
                             .fillMaxHeight(),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -160,6 +167,7 @@ fun CourseScreen() {
                                     fontSize = 15.sp
                                 )
                                 Text(text = viewModel.courseTime[it * 2 + 1], fontSize = 12.sp)
+                                //分界线
                                 Divider(
                                     Modifier.height(1.dp),
                                     color = if (it != 1 && it != 3 && it != 4) MaterialTheme.colorScheme.onSurface.copy(

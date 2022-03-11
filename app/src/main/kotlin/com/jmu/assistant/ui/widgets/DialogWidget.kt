@@ -20,37 +20,52 @@ import com.jmu.assistant.R
 
 @Composable
 fun AlertDialog(
-    modifier: Modifier=Modifier,
+    modifier: Modifier = Modifier,
     title: String,
-    text: String?=null,
+    text: String? = null,
     dismissText: String = stringResource(R.string.dismiss),
     confirmText: String = stringResource(R.string.confirm),
     onDismiss: () -> Unit = {},
     onConfirm: () -> Unit = {},
-    content: @Composable ()->Unit={}
+    content: @Composable () -> Unit = {}
 ) {
-    AlertDialog(modifier = modifier,onDismissRequest = {
+    /**
+     * @Author yuanczx
+     * @Description 对话框
+     * @Date 2022/3/10 19:30
+     * @Params [modifier, title, text, dismissText, confirmText, onDismiss, onConfirm, content]
+     * @Return
+     **/
+    AlertDialog(modifier = modifier, onDismissRequest = {
         onDismiss()
     }, confirmButton = {
         Button(onClick = { onConfirm() }) {
             Text(text = confirmText)
         }
     }, dismissButton = {
-        Button( onClick = {
+        Button(onClick = {
             onDismiss()
         }) {
             Text(text = dismissText)
         }
     }, title = {
-        Text(text = title) }, text = {
+        Text(text = title)
+    }, text = {
         content()
-        text?.let {  Text(text = it)}
-        })
+        text?.let { Text(text = it) }
+    })
 }
 
 
 @Composable
 fun ProgressDialog(text: String? = null) {
+    /**
+     * @Author yuanczx
+     * @Description 进度对话框
+     * @Date 2022/3/10 19:30
+     * @Params [text]
+     * @Return
+     **/
     Dialog(onDismissRequest = {}) {
         Row(
             modifier = Modifier

@@ -24,6 +24,13 @@ import com.jmu.assistant.viewmodel.MenuViewModel
 @ExperimentalMaterial3Api
 @Composable
 fun UserScreen(viewModel: MenuViewModel) {
+    /**
+     * @Author yuanczx
+     * @Description 用户界面
+     * @Date 2022/3/10 19:26
+     * @Params [viewModel]
+     * @Return
+     **/
     var maxLine by remember { mutableStateOf(5) }
     Column(
         verticalArrangement = Arrangement.Center,
@@ -35,14 +42,13 @@ fun UserScreen(viewModel: MenuViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 5.dp, bottom = 15.dp)
-                    .clip(RoundedCornerShape(25.dp))
+                    .clip(RoundedCornerShape(15.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Image(
                 modifier = Modifier
                     .width(100.dp)
                     .height(140.dp),
-//                    .padding(start = 5.dp, top = 5.dp, bottom = 5.dp),
                 painter = rememberImagePainter(request = viewModel.getImageRequest()),
                 contentDescription = ""
             )
@@ -57,7 +63,7 @@ fun UserScreen(viewModel: MenuViewModel) {
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .animateContentSize()
-                .clip(RoundedCornerShape(25.dp))
+                .clip(RoundedCornerShape(15.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .clickable {
                     maxLine = if (maxLine == 5) 50 else 5

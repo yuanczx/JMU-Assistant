@@ -14,7 +14,7 @@ import com.jmu.assistant.MainActivity
 import com.jmu.assistant.MainActivity.Companion.COOKIE_KEY
 import com.jmu.assistant.MainActivity.Companion.studentID
 import com.jmu.assistant.entity.ContentNav
-import com.jmu.assistant.utils.TheRetrofit
+import com.jmu.assistant.utils.HttpTool
 import kotlinx.coroutines.flow.first
 import org.jsoup.Jsoup
 import retrofit2.awaitResponse
@@ -39,7 +39,7 @@ class MainViewModel : ViewModel() {
 
     suspend fun getStudentId() {
         try {
-            val response = TheRetrofit.api.getStudentId().awaitResponse()
+            val response = HttpTool.api.getStudentId().awaitResponse()
             val redirect = response.headers()["Location"] ?: ""
 
             if (redirect.isBlank()) {

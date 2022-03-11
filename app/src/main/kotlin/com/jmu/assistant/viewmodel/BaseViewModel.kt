@@ -13,6 +13,8 @@ open class BaseViewModel(application: Application):AndroidViewModel(application)
     }
 
     fun toast(@StringRes id:Int){
-        toast(context().getString(id))
+        toast(getString(id))
     }
+
+    fun getString(@StringRes id:Int) = context().getString(id)
 }

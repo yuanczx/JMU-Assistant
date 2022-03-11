@@ -42,7 +42,16 @@ import kotlinx.coroutines.launch
 @ExperimentalFoundationApi
 @Composable
 
-fun MainActivity.LoginScreen(navController: NavController) {
+fun MainActivity.LoginScreen(navHostController: NavController) {
+
+    /**
+     * @Author yuanczx
+     * @Description 登录界面
+     * @Date 2022/3/10 19:21
+     * @Params [navHostController]
+     * @Return null
+     **/
+
     val viewModel: LoginViewModel = viewModel()
     val scope = rememberCoroutineScope()
 
@@ -146,7 +155,7 @@ fun MainActivity.LoginScreen(navController: NavController) {
                         }
                     }
                     mainViewModel.getStudentId()
-                    navController.navigate(ContentNav.Menu.route) {
+                    navHostController.navigate(ContentNav.Menu.route) {
                         popUpTo(ContentNav.Login.route){
                             inclusive = true
                         }

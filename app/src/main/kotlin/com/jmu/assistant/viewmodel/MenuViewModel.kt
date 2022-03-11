@@ -16,7 +16,7 @@ import coil.transform.RoundedCornersTransformation
 import com.jmu.assistant.BuildConfig
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
-import com.jmu.assistant.utils.TheRetrofit
+import com.jmu.assistant.utils.HttpTool
 import com.jmu.assistant.utils.awaitResponse
 import kotlinx.coroutines.launch
 import okhttp3.Request
@@ -45,32 +45,37 @@ class MenuViewModel(application: Application) : BaseViewModel(application) {
     var checkingUpdate by mutableStateOf(false)
     private var image by mutableStateOf("http://jwxt.jmu.edu.cn")
 
-//    private fun getVersionCode(): Long {
+    //    private fun getVersionCode(): Long {
 //        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
 //            context().packageManager.getPackageInfo(context().packageName,PackageManager.GET_ACTIVITIES).longVersionCode
 //        }else{
 //            context().packageManager.getPackageInfo(context().packageName,0).versionCode.toLong()
 //        }
 //    }
-    fun checkUpdate() {
-        checkingUpdate = true
+    fun checkUpdate(showDialog: Boolean = true) {
+        checkingUpdate = showDialog
         val request = Request.Builder()
             .url(UPDATE_URL)
             .build()
         viewModelScope.launch {
             try {
-                TheRetrofit.client.newCall(request).awaitResponse()
+                HttpTool.client.newCall(request).awaitResponse()
                     .body?.let {
                         val updateInfo = Jsoup.parse(it.string())
                         updateInfo.select("br").append("\\n")
                         val versionCode =
-                            updateInfo.getElementById("versionCode")?.text()?.toInt()?:100
+                            updateInfo.getElementById("versionCode")?.text()?.toInt() ?: 100
                         checkingUpdate = false
                         if (versionCode <= BuildConfig.VERSION_CODE) {
-                            toast(R.string.newest)
+                            if (showDialog) toast(R.string.newest)
                         } else {
-                            versionName = updateInfo.getElementById("versionName")?.text().toString()
-                            description =(updateInfo.getElementById("description")?.text()?:"").replace(Regex("\\\\n\\s?"),"\n")
+                            versionName =
+                                updateInfo.getElementById("versionName")?.text().toString()
+                            description =
+                                (updateInfo.getElementById("description")?.text() ?: "").replace(
+                                    Regex("\\\\n\\s?"),
+                                    "\n"
+                                )
                             download = updateInfo.getElementById("download")?.text().toString()
                             Log.d(TAG, "checkUpdate: $download")
                             newVersion = true
@@ -80,7 +85,7 @@ class MenuViewModel(application: Application) : BaseViewModel(application) {
                 Log.d(TAG, "checkUpdate: ${e.message}")
                 checkingUpdate = false
                 newVersion = false
-            }catch (e:IOException){
+            } catch (e: IOException) {
                 toast(R.string.network_error)
             }
         }
@@ -95,7 +100,7 @@ class MenuViewModel(application: Application) : BaseViewModel(application) {
 
     suspend fun getStudentInfo() {
         try {
-            val response = TheRetrofit.api.getStudentInfo(MainActivity.studentID).awaitResponse()
+            val response = HttpTool.api.getStudentInfo(MainActivity.studentID).awaitResponse()
             val jsoup = Jsoup.parse(response.body().toString())
             rightData +=
                 jsoup.getElementsByClass("base-header-right")[0].text()
@@ -111,14 +116,14 @@ class MenuViewModel(application: Application) : BaseViewModel(application) {
 
     fun update() {
         newVersion = false
-        checkingUpdate =false
-        if (download.isNotBlank()){
+        checkingUpdate = false
+        if (download.isNotBlank()) {
             try {
                 val uri = Uri.parse(download)
-                val intent = Intent(Intent.ACTION_VIEW,uri)
+                val intent = Intent(Intent.ACTION_VIEW, uri)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context().startActivity(intent)
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 Log.e(TAG, "update: ${e.message}")
             }
         }

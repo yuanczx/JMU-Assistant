@@ -23,7 +23,13 @@ import com.jmu.assistant.entity.ContentNav
 @ExperimentalMaterial3Api
 @Composable
 fun MainActivity.MainScreen() {
-
+    /**
+     * @Author yuanczx
+     * @Description 主界面
+     * @Date 2022/3/10 19:26
+     * @Params []
+     * @Return
+     **/
     val mainNavController = rememberAnimatedNavController()
     Scaffold(Modifier.fillMaxSize()) {
         AnimatedNavHost(
@@ -32,7 +38,7 @@ fun MainActivity.MainScreen() {
         ) {
 
             composable(ContentNav.Menu.route) {
-                BottomNavScreen(mainNavController)
+                MenuScreen(mainNavController)
             }
             composable(
                 ContentNav.Login.route,
@@ -46,14 +52,14 @@ fun MainActivity.MainScreen() {
                 enterTransition = { slideInHorizontally { fullWidth -> -fullWidth } },
                 exitTransition = { slideOutHorizontally { fullWidth -> -fullWidth } }
             ) {
-                CourseScreen()
+                CourseScreen(mainNavController)
             }
             composable(
                 ContentNav.Transcript.route,
                 enterTransition = { slideInHorizontally { fullWidth -> -fullWidth } },
                 exitTransition = { slideOutHorizontally { fullWidth -> -fullWidth } }
             ) {
-                TranscriptScreen()
+                TranscriptScreen(mainNavController)
             }
         }
     }

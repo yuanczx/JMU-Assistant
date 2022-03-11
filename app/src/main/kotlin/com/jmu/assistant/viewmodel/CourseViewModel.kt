@@ -18,7 +18,7 @@ import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
 import com.jmu.assistant.models.Activity
 import com.jmu.assistant.models.CourseTable
-import com.jmu.assistant.utils.TheRetrofit
+import com.jmu.assistant.utils.HttpTool
 import retrofit2.awaitResponse
 import java.io.File
 import java.time.LocalDate
@@ -85,12 +85,26 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
 //        return (colors[random.nextInt(4)])
 //    }
 
+    val semesterItem = listOf(
+        getString(R.string.second_semester_21_22),
+        getString(R.string.first_semester_21_22)
+    )
     val courseTime = listOf(
         "8:00\n8:45", "8:50\n9:35",
         "10:05\n10:50", "10:55\n11:40",
         "14:00\n14:45", "14:50\n15:35",
         "15:55\n16:40", "16:45\n17:30",
         "19:00\n19:45", "19:50\n20:30"
+    )
+
+    val weekDayName = listOf(
+        getString(R.string.Monday),
+        getString(R.string.Tuesday),
+        getString(R.string.Wednesday),
+        getString(R.string.Thursday),
+        getString(R.string.Friday),
+        getString(R.string.Saturday),
+        getString(R.string.Sunday),
     )
     var weekSelector by mutableStateOf(1)
     var loadFinish by mutableStateOf(false)
@@ -105,16 +119,15 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
     fun toast(s: String) = Toast.makeText(context(), s, Toast.LENGTH_SHORT).show()
 
 
-
     fun makeCourseTable() {
         courseTable?.let { ct ->
-            repeat(5) {
+            repeat(7) {
                 val courseMap = mutableMapOf<Int, Triple<String, String, String>>()
                 ct.studentTableVm.activities.forEach { activity ->
                     if (activity.weekday == it + 1 && activity.weekIndexes.contains(weekSelector)) {
                         courseMap[activity.startUnit] = Triple(
                             activity.courseName,
-                            activity.room ?: "",
+                            (activity.room ?: "").replace("*","").replace(Regex("(?=[0-9][0-9][0-9][0-9])"),"\n"),
                             activity.teachers.first()
                         )
                     }
@@ -130,7 +143,7 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
     suspend fun getCourseTable() {
         loadCourse = true
         try {
-            val response = TheRetrofit.api.getCourse(
+            val response = HttpTool.api.getCourse(
                 semester = SEMESTER[semesterIndex],
                 studentId = MainActivity.studentID
             ).awaitResponse()

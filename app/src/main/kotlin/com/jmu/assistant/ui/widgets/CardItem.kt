@@ -25,6 +25,13 @@ fun CardItem(
     onClick: () -> Unit,
     content: @Composable () -> Unit,
 ) {
+    /**
+     * @Author yuanczx
+     * @Description 卡片Item 显示Menu界面
+     * @Date 2022/3/10 19:28
+     * @Params [onClick, content]
+     * @Return
+     **/
     Button(
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background),
         modifier = Modifier
@@ -52,6 +59,13 @@ fun ImageCardItem(
     @DrawableRes drawableRes: Int,
     onClick: () -> Unit
 ) {
+    /**
+     * @Author yuanczx
+     * @Description 卡片样式图片Item
+     * @Date 2022/3/10 19:29
+     * @Params [label, drawableRes, onClick]
+     * @Return
+     **/
     CardItem(onClick = onClick) {
         Image(
             modifier = Modifier.size(50.dp),
@@ -76,6 +90,13 @@ fun GradeItem(
     gpa: String,
     info: String,
 ) {
+    /**
+     * @Author yuanczx
+     * @Description 成绩单显示Item
+     * @Date 2022/3/10 19:29
+     * @Params [title, subTitle, gpa, info]
+     * @Return
+     **/
     Card(
         modifier = Modifier
             .height(150.dp)

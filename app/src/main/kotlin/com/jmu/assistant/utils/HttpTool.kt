@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
-object TheRetrofit {
+object HttpTool {
     private const val BASE_URL = "http://jwxt.jmu.edu.cn/student/for-std/"
     val client by lazy {
         OkHttpClient.Builder()

@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModel
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.models.CourseInfo
 import com.jmu.assistant.models.Transcript
-import com.jmu.assistant.utils.TheRetrofit
+import com.jmu.assistant.utils.HttpTool
 import org.jsoup.Jsoup
 import org.jsoup.select.Elements
 import retrofit2.awaitResponse
@@ -32,7 +32,7 @@ class TranscriptViewModel : ViewModel() {
 
     suspend fun getGrade() {
         try {
-            val response = TheRetrofit.api.getTranscript(MainActivity.studentID).awaitResponse()
+            val response = HttpTool.api.getTranscript(MainActivity.studentID).awaitResponse()
             if (response.isSuccessful) {
                 transcript = response.body()
 //                transcript = Gson().fromJson(transcriptJson,Transcript::class.java)
@@ -54,13 +54,17 @@ class TranscriptViewModel : ViewModel() {
             "42" -> semester_20_21_2
             "61" -> semester_21_22_1
             "181"-> semester_21_22_2
+            "40" -> semester_19_20_2
+            "39" -> semester_19_20_1
+            "38" -> semester_18_19_2
+            "37" -> semester_18_19_1
             else -> semester_21_22_2
         }
     }
 
     suspend fun getSemesterIndex() {
         try {
-            val response = TheRetrofit.api.getSemesterIndex(MainActivity.studentID).awaitResponse()
+            val response = HttpTool.api.getSemesterIndex(MainActivity.studentID).awaitResponse()
             val jsoup = Jsoup.parse(response.body().toString())
             val temp = jsoup.getElementById("semester")?.getElementsByTag("option")
             temp?.let {
