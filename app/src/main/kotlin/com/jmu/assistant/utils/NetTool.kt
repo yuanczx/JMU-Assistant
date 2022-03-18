@@ -2,6 +2,7 @@ package com.jmu.assistant.utils
 
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
+import okhttp3.Request
 import okhttp3.Response
 import okio.IOException
 import kotlin.coroutines.resume
@@ -34,3 +35,9 @@ suspend fun Call.awaitResponse(): Response {
         })
     }
 }
+
+
+fun buildReuest(url:String) = Request.Builder()
+    .url(url)
+    .get()
+    .build()

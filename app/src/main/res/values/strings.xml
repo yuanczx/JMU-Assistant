@@ -47,4 +47,8 @@
     <string name="Saturday">周六</string>
     <string name="Sunday">周日</string>
     <string name="back">返回</string>
+    <string name="train_program">培养方案</string>
+    <string name="show_weekend">显示周末</string>
+    <string name="News">信息</string>
+    <string name="Info">信息</string>
 </resources>

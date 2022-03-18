@@ -77,6 +77,7 @@ fun MainActivity.LoginScreen(navHostController: NavController) {
             onValueChange = { viewModel.userName = it },
             modifier = Modifier.fillMaxWidth(0.8f),
             label = { Text(stringResource(id = R.string.user)) },
+            maxLines = 1,
             placeholder = { Text(text = stringResource(R.string.user_place_holder)) },
             colors = textFieldColor,
             leadingIcon = {
@@ -101,6 +102,7 @@ fun MainActivity.LoginScreen(navHostController: NavController) {
             onValueChange = { viewModel.passWord = it },
             modifier = Modifier.fillMaxWidth(0.8f),
             label = { Text(text = stringResource(R.string.password)) },
+            maxLines = 2,
             placeholder = { Text(text = stringResource(R.string.please_password)) },
             colors = textFieldColor,
             visualTransformation = if (viewModel.passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,

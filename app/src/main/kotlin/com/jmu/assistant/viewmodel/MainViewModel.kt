@@ -24,6 +24,7 @@ import retrofit2.awaitResponse
 @ExperimentalMaterial3Api
 class MainViewModel : ViewModel() {
 
+    var articalLink by mutableStateOf("")
     var startRoute by mutableStateOf(ContentNav.Menu.route)
 
     suspend fun judgeStartRoute(dataStore: DataStore<Preferences>) {

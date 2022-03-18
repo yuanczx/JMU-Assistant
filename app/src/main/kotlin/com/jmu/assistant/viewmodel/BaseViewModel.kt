@@ -8,7 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 
 open class BaseViewModel(application: Application):AndroidViewModel(application) {
     fun context(): Context = getApplication<Application>().applicationContext
-    private fun toast(msg:String){
+    fun toast(msg:String){
         Toast.makeText(context(), msg, Toast.LENGTH_SHORT).show()
     }
 

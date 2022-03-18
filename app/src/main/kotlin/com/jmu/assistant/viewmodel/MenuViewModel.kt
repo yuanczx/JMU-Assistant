@@ -34,29 +34,26 @@ class MenuViewModel(application: Application) : BaseViewModel(application) {
     }
 
     var rightData by mutableStateOf("")
-    var showInfo by mutableStateOf(false)
     var basicInfo by mutableStateOf("")
 
-    var versionName by mutableStateOf("")
-    var description by mutableStateOf("")
-    private var download = ""
-    var newVersion by mutableStateOf(false)
+    var versionName by mutableStateOf("") //版本名
+    var description by mutableStateOf("") //更新描述
+    private var download = "" //下载地址
+    var newVersion by mutableStateOf(false) // 新版本
 
     var checkingUpdate by mutableStateOf(false)
     private var image by mutableStateOf("http://jwxt.jmu.edu.cn")
 
-    //    private fun getVersionCode(): Long {
-//        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-//            context().packageManager.getPackageInfo(context().packageName,PackageManager.GET_ACTIVITIES).longVersionCode
-//        }else{
-//            context().packageManager.getPackageInfo(context().packageName,0).versionCode.toLong()
-//        }
-//    }
     fun checkUpdate(showDialog: Boolean = true) {
+        /**
+         * @Author yuanczx
+         * @Description 检查更新
+         * @Date 2022/3/11 21:04
+         * @Params [showDialog]
+         * @Return
+         **/
         checkingUpdate = showDialog
-        val request = Request.Builder()
-            .url(UPDATE_URL)
-            .build()
+        val request = Request.Builder().url(UPDATE_URL).build()
         viewModelScope.launch {
             try {
                 HttpTool.client.newCall(request).awaitResponse()
@@ -99,6 +96,13 @@ class MenuViewModel(application: Application) : BaseViewModel(application) {
         .build()
 
     suspend fun getStudentInfo() {
+        /**
+         * @Author yuanczx
+         * @Description 获取学籍信息
+         * @Date 2022/3/11 21:03
+         * @Params []
+         * @Return
+         **/
         try {
             val response = HttpTool.api.getStudentInfo(MainActivity.studentID).awaitResponse()
             val jsoup = Jsoup.parse(response.body().toString())
@@ -108,13 +112,19 @@ class MenuViewModel(application: Application) : BaseViewModel(application) {
             image = "http://jwxt.jmu.edu.cn" + jsoup.getElementsByTag("img")[0].attr("src")
             val tds = jsoup.getElementsByClass("table-three-bisection")[0].getElementsByTag("td")
             repeat(tds.size / 2) { basicInfo += "${tds[it * 2].html()} : ${tds[it * 2 + 1].html()}\n" }
-            showInfo = true
         } catch (e: Exception) {
             Log.e(e.toString(), e.message.toString())
         }
     }
 
     fun update() {
+        /**
+         * @Author yuanczx
+         * @Description 升级版本
+         * @Date 2022/3/11 21:03
+         * @Params []
+         * @Return
+         **/
         newVersion = false
         checkingUpdate = false
         if (download.isNotBlank()) {

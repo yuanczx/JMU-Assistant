@@ -33,34 +33,40 @@ fun MainActivity.MainScreen() {
     val mainNavController = rememberAnimatedNavController()
     Scaffold(Modifier.fillMaxSize()) {
         AnimatedNavHost(
-            navController = mainNavController,
-            startDestination = mainViewModel.startRoute
+            navController = mainNavController, startDestination = mainViewModel.startRoute
         ) {
 
             composable(ContentNav.Menu.route) {
                 MenuScreen(mainNavController)
             }
-            composable(
-                ContentNav.Login.route,
+            composable(ContentNav.Login.route,
                 enterTransition = { slideInHorizontally { fullWidth -> -fullWidth } },
-                exitTransition = { slideOutHorizontally { fullWidth -> -fullWidth } }
-            ) {
+                exitTransition = { slideOutHorizontally { fullWidth -> -fullWidth } }) {
                 LoginScreen(mainNavController)
             }
-            composable(
-                ContentNav.Course.route,
+            composable(ContentNav.Course.route,
                 enterTransition = { slideInHorizontally { fullWidth -> -fullWidth } },
-                exitTransition = { slideOutHorizontally { fullWidth -> -fullWidth } }
-            ) {
+                exitTransition = { slideOutHorizontally { fullWidth -> -fullWidth } }) {
                 CourseScreen(mainNavController)
             }
+            composable(ContentNav.Transcript.route,
+                enterTransition = { slideInHorizontally { fullWidth -> -fullWidth } },
+                exitTransition = { slideOutHorizontally { fullWidth -> -fullWidth } }) {
+                TranscriptScreen(mainNavController)
+            }
             composable(
-                ContentNav.Transcript.route,
+                route = ContentNav.Info.route,
                 enterTransition = { slideInHorizontally { fullWidth -> -fullWidth } },
                 exitTransition = { slideOutHorizontally { fullWidth -> -fullWidth } }
             ) {
-                TranscriptScreen(mainNavController)
+                InfoScreen(mainNavController)
             }
+
+//            composable(ContentNav.Train.route,
+//                enterTransition = { slideInHorizontally { fullWidth -> -fullWidth } },
+//                exitTransition = { slideOutHorizontally { fullWidth -> -fullWidth } }) {
+//                TrainScreen(mainNavHostController = mainNavController)
+//            }
         }
     }
 }

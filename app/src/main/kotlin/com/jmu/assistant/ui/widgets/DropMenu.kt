@@ -26,7 +26,7 @@ fun TextButtonDropMenu(
     TextButton(onClick = { expanded = !expanded }) {
         Text(text = title, color = titleColor)
         DropdownMenu(
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant),
+            modifier = Modifier.background(MaterialTheme.colorScheme.surface),
             expanded = expanded,
             onDismissRequest = { expanded = false }) {
             list.forEachIndexed { index, value ->
@@ -60,7 +60,7 @@ fun TextButtonDropMenu(
     TextButton(onClick = { expanded = !expanded }) {
         Text(text = title, color = titleColor)
         DropdownMenu(
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant),
+            modifier = Modifier.background(MaterialTheme.colorScheme.surface),
             expanded = expanded,
             onDismissRequest = { expanded = false }) {
             repeat(repeatTimes) {
@@ -79,7 +79,7 @@ fun TextButtonDropMenu(
 fun IconDropMenu(
     painter: Painter,
     contentDescriptor: String,
-    list: List<String>,
+    list: List<Pair<String, @Composable () -> Unit>>,
     tint: Color = MaterialTheme.colorScheme.onPrimary,
     itemTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: (Int) -> Unit,
@@ -95,15 +95,42 @@ fun IconDropMenu(
     IconButton(onClick = { expanded = !expanded }) {
         Icon(painter = painter, contentDescription = contentDescriptor, tint = tint)
         DropdownMenu(
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant),
+            modifier = Modifier.background(MaterialTheme.colorScheme.surface),
             expanded = expanded,
             onDismissRequest = { expanded = false }) {
             list.forEachIndexed { index, value ->
-                DropdownMenuItem(text = { Text(text = value, color = itemTextColor) }, onClick = {
-                    expanded = false
-                    onClick(index)
-                })
+                DropdownMenuItem(
+                    text = { Text(text = value.first) },
+                    trailingIcon = value.second,
+                    onClick = {
+                        expanded = false
+                        onClick(index)
+                    })
             }
         }
     }
+}
+
+@JvmName("IconDropMenu1")
+@Composable
+fun IconDropMenu(
+    painter: Painter,
+    contentDescriptor: String,
+    list: List<String>,
+    tint: Color = MaterialTheme.colorScheme.onPrimary,
+    itemTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    onClick: (Int) -> Unit,
+) {
+    val mlist = mutableListOf<Pair<String, @Composable () -> Unit>>()
+    list.forEach {
+        mlist+= listOf(Pair(it) {})
+    }
+    IconDropMenu(
+        painter = painter,
+        contentDescriptor = contentDescriptor,
+        list = mlist,
+        tint = tint,
+        itemTextColor = itemTextColor,
+        onClick = onClick,
+    )
 }

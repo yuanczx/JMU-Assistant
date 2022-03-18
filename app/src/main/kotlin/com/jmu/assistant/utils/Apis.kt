@@ -22,4 +22,7 @@ interface Apis {
 
     @GET("student-info/info/{studentId}")
     fun getStudentInfo(@Path("studentId") studentId: String): Call<String>
+
+    @GET("program/root-module-json/{studentID}")
+    fun getTrainData(@Path("studentID") studentId: String):Call<String>
 }

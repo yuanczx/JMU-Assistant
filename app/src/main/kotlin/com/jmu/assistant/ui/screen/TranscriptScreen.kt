@@ -6,8 +6,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
@@ -101,7 +101,7 @@ fun TranscriptScreen(navHostController: NavHostController) {
 
             //显示成绩列表
             if (!viewModel.loading) viewModel.semesterSelector()?.let { courses ->
-                LazyVerticalGrid(cells = GridCells.Fixed(2), content = {
+                LazyVerticalGrid(GridCells.Fixed(2), content = {
                     items(courses.size) {
                         GradeItem(
                             title = courses[it].course.nameZh,

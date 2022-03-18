@@ -3,18 +3,17 @@ package com.jmu.assistant.ui.screen
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -54,46 +53,58 @@ fun MainActivity.MenuScreen(mainNavHostController: NavHostController) {
     val viewModel: MenuViewModel = viewModel()
     val navController = rememberAnimatedNavController()
     val scope = rememberCoroutineScope()
+    var scroll by remember { mutableStateOf(false) }
+    val scrollBehavior = remember { TopAppBarDefaults.enterAlwaysScrollBehavior() }
     LaunchedEffect(key1 = null, block = {
         viewModel.checkUpdate(false)
     })
     Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopBar(actions = {
-                IconDropMenu(
-                    painter = rememberVectorPainter(image = Icons.Default.MoreVert),
-                    contentDescriptor = stringResource(R.string.menu_more),
-                    list = listOf(
-                        stringResource(id = R.string.relogin),
-                        stringResource(id = R.string.check_update)
-                    ),
-                    onClick = {
-                        when (it) {
-                            0 -> scope.launch {
-                                dataStore.edit { ds -> ds[MainActivity.COOKIE_KEY] = "" }
-                                MainActivity.cookie = ""
-                                mainNavHostController.navigate(ContentNav.Login.route) {
-                                    launchSingleTop = true
-                                    popUpTo(ContentNav.Menu.route) {
-                                        inclusive = true
+            TopBar(
+                actions = {
+                    IconDropMenu(
+                        painter = rememberVectorPainter(image = Icons.Default.MoreVert),
+                        contentDescriptor = stringResource(R.string.menu_more),
+                        list = listOf(
+                            stringResource(id = R.string.relogin),
+                            stringResource(id = R.string.check_update)
+                        ),
+                        onClick = {
+                            when (it) {
+                                0 -> scope.launch {
+                                    dataStore.edit { ds -> ds[MainActivity.COOKIE_KEY] = "" }
+                                    MainActivity.cookie = ""
+                                    mainNavHostController.navigate(ContentNav.Login.route) {
+                                        launchSingleTop = true
+                                        popUpTo(ContentNav.Menu.route) {
+                                            inclusive = true
+                                        }
                                     }
                                 }
-                            }
-                            1 -> {
-                                viewModel.checkUpdate()
+                                1 -> { viewModel.checkUpdate() }
                             }
                         }
-                    }
-                )
-            })
+                    )
+                },
+                scrollBehavior = if (scroll) scrollBehavior else null
+            )
         },
         bottomBar = { BottomBar(navController = navController) }) {
         AnimatedNavHost(navController = navController, startDestination = BtmNav.Func.route) {
             composable(BtmNav.Func.route) {
                 FuncScreen(navController = mainNavHostController)
+                scroll = false
             }
             composable(BtmNav.User.route) {
                 UserScreen(viewModel = viewModel)
+                scroll = false
+            }
+            composable(BtmNav.News.route) {
+                MesseageScreen(mainNavHostController)
+                scroll = true
             }
         }
         if (viewModel.checkingUpdate) {
@@ -103,9 +114,7 @@ fun MainActivity.MenuScreen(mainNavHostController: NavHostController) {
         if (viewModel.newVersion) {
             com.jmu.assistant.ui.widgets.AlertDialog(
                 title = stringResource(id = R.string.check_update),
-                onConfirm = {
-                    viewModel.update()
-                },
+                onConfirm = viewModel::update,
                 onDismiss = {
                     viewModel.newVersion = false
                 }
@@ -134,11 +143,11 @@ fun BottomBar(navController: NavHostController) {
 
     NavigationBar(
         contentColor = MaterialTheme.colorScheme.primary,
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDes = navBackStackEntry?.destination
-        val items = listOf(BtmNav.Func, BtmNav.User)
+        val items = listOf(BtmNav.Func, BtmNav.News, BtmNav.User)
         items.forEach { screen ->
             NavigationBarItem(alwaysShowLabel = false,
                 selected = currentDes?.hierarchy?.any { it.route == screen.route } == true,

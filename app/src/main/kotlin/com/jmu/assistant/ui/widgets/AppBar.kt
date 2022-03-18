@@ -13,7 +13,7 @@ import com.jmu.assistant.R
 @ExperimentalMaterial3Api
 @Composable
 fun TopBar(
-    @StringRes stringId: Int = R.string.app_name,
+    @StringRes titleId: Int = R.string.app_name,
     scrollBehavior: TopAppBarScrollBehavior? = null,
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
@@ -25,15 +25,10 @@ fun TopBar(
      * @Params [stringId, scrollBehavior, actions]
      * @Return
      **/
-    SmallTopAppBar(
-        colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary,
-            actionIconContentColor = MaterialTheme.colorScheme.primary
-        ),
-        navigationIcon = navigationIcon,
-        title = { Text(text = stringResource(stringId)) },
+    TopBar(
+        title = stringResource(id = titleId),
         scrollBehavior = scrollBehavior,
+        navigationIcon = navigationIcon,
         actions = actions
     )
 }
@@ -47,4 +42,25 @@ fun BackIcon(navController: NavHostController) {
             tint = MaterialTheme.colorScheme.onPrimary
         )
     }
+}
+
+@Composable
+fun TopBar(
+    title: String,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+) {
+
+    SmallTopAppBar(
+        colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.onPrimary,
+            actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+        ),
+        navigationIcon = navigationIcon,
+        title = { Text(text = title) },
+        scrollBehavior = scrollBehavior,
+        actions = actions
+    )
 }

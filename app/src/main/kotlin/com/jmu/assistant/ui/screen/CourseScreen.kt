@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -48,6 +50,8 @@ fun CourseScreen(navController: NavHostController) {
      * @Params []
      * @Return
      **/
+
+    val scope = rememberCoroutineScope()
     val viewModel: CourseViewModel = viewModel()
 
     LaunchedEffect(key1 = null, block = {
@@ -56,7 +60,6 @@ fun CourseScreen(navController: NavHostController) {
         viewModel.loadFinish = true
     })
 
-    val scope = rememberCoroutineScope()
 
     Column(
         Modifier
@@ -64,7 +67,7 @@ fun CourseScreen(navController: NavHostController) {
             .background(MaterialTheme.colorScheme.background)
     ) {
 
-        TopBar(stringId = R.string.Course, navigationIcon = { BackIcon(navController) }) {
+        TopBar(titleId = R.string.Course, navigationIcon = { BackIcon(navController) }) {
             TextButtonDropMenu(
                 title = viewModel.semesterItem[viewModel.semesterIndex],
                 list = viewModel.semesterItem
@@ -94,8 +97,16 @@ fun CourseScreen(navController: NavHostController) {
                 painter = rememberVectorPainter(image = Icons.Default.MoreVert),
                 contentDescriptor = "More",
                 list = listOf(
-                    stringResource(id = R.string.export_ics),
-                    stringResource(id = R.string.refresh)
+                    Pair(stringResource(id = R.string.export_ics)) {},
+                    Pair(stringResource(id = R.string.show_weekend)) {
+                        Checkbox(
+                            checked = viewModel.showWeekend,
+                            onCheckedChange = { viewModel.showWeekend = it }
+                        )
+                    },
+                    Pair(stringResource(id = R.string.refresh)) {
+
+                    },
                 ),
                 onClick = {
                     when (it) {
@@ -104,6 +115,9 @@ fun CourseScreen(navController: NavHostController) {
                             viewModel.exportICS()
                         }
                         1 -> {
+                            viewModel.showWeekend = !viewModel.showWeekend
+                        }
+                        2 -> {
                             scope.launch {
                                 viewModel.getCourseTable()
                             }
@@ -112,77 +126,79 @@ fun CourseScreen(navController: NavHostController) {
                 })
         }
 
-
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(35.dp), horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxSize(),
         ) {
-            repeat(6) {
-                if (it == 0) Text(
-                    modifier = Modifier.weight(0.08f),
-                    text = stringResource(R.string.time),
-                    textAlign = TextAlign.Center
-                )
-                else Text(
-                    modifier = Modifier.weight(0.184f),
-                    text = viewModel.weekDayName[it - 1],
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-
-        if (viewModel.loadFinish)
-            Row(
+            Column(
                 Modifier
-                    .fillMaxSize()
+                    .fillMaxHeight()
+                    .weight(0.08f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                //时间轴
+                repeat(5) {
+                    if (it == 0) Text(
+//                        modifier = Modifier.weight(0.05f),
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Light,
+                        text = stringResource(R.string.time),
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        modifier = Modifier.padding(1.dp)
+                    )
+                    Column(
+                        modifier = Modifier.weight(0.19f),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = (it * 2 + 1).toString(),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                        Text(text = viewModel.courseTime[it * 2], fontSize = 12.sp)
+                        Divider(Modifier.height(1.dp))
+                        Text(
+                            text = (it * 2 + 2).toString(),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
+                        Text(text = viewModel.courseTime[it * 2 + 1], fontSize = 12.sp)
+                        if (it != 1 && it != 3 && it != 4) Divider()
+                    }
+                    Divider(
+                        thickness = if (it == 1 || it == 3 || it == 4) 15.dp else 1.dp,
+                        color = Color.Transparent
+                    )
+                }
+//                Divider(thickness = 10.dp, color = Color.Transparent)
+            }
+            Row(
+                modifier = Modifier
+                    .weight(0.92f)
                     .horizontalScroll(rememberScrollState())
             ) {
-                repeat(6) { weekday ->
+                repeat(if (viewModel.showWeekend) 7 else 5) { weekday ->
                     Column(
-                        modifier = Modifier
-                            .weight(if (weekday == 0) 0.08f else 0.184f)
-                            .fillMaxHeight(),
+                        modifier = if (viewModel.showWeekend) Modifier
+                            .fillMaxHeight()
+                            .requiredWidth(65.dp)
+                        else Modifier
+                            .weight(0.2f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
-                        if (weekday == 0) repeat(5) {
-                            Column(
-                                modifier = Modifier
-                                    .weight(0.19f)
-                                    .fillMaxSize(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = (it * 2 + 1).toString(),
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 15.sp
-                                )
-                                Text(text = viewModel.courseTime[it * 2], fontSize = 12.sp)
-                                Divider(Modifier.height(1.dp))
-                                Text(
-                                    text = (it * 2 + 2).toString(),
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 15.sp
-                                )
-                                Text(text = viewModel.courseTime[it * 2 + 1], fontSize = 12.sp)
-                                //分界线
-                                Divider(
-                                    Modifier.height(1.dp),
-                                    color = if (it != 1 && it != 3 && it != 4) MaterialTheme.colorScheme.onSurface.copy(
-                                        0.12f
-                                    )
-                                    else Color.Transparent
-                                )
-                            }
-                            if (it == 3 || it == 1) Divider(
-                                Modifier.weight(0.025f),
-                                color = MaterialTheme.colorScheme.surface
+                        repeat(5) {
+                            if (it == 0) Text(
+                                fontWeight = FontWeight.Light,
+                                text = viewModel.weekDayName[weekday],
+                                fontSize = 15.sp,
+                                fontFamily = FontFamily.Serif,
+                                modifier = Modifier.padding(3.dp)
                             )
-                        }
-                        else repeat(5) {
-                            Box(
+                            if (viewModel.loadFinish)Box(
                                 modifier = Modifier
                                     .weight(0.19f)
                                     .fillMaxSize()
@@ -194,11 +210,11 @@ fun CourseScreen(navController: NavHostController) {
                                         )
                                     )
                             ) {
-                                viewModel.weekCourse[weekday]?.get(it * 2 + 1)?.let {
+                                viewModel.weekCourse[weekday + 1]?.get(it * 2 + 1)?.let {
                                     Column(
                                         Modifier
                                             .fillMaxSize()
-                                            .clickable { viewModel.toast(it.first + it.second) },
+                                            .clickable { viewModel.toast("${it.first} \n ${it.second}") },
                                         verticalArrangement = Arrangement.SpaceBetween,
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
@@ -234,15 +250,13 @@ fun CourseScreen(navController: NavHostController) {
                                     }
                                 }
                             }
-                            if (it == 3 || it == 1) Divider(
-                                Modifier.weight(0.025f),
-                                color = MaterialTheme.colorScheme.surface
-                            )
+                            if (it == 1 || it == 3 || it == 4) Divider(thickness = 15.dp, color = Color.Transparent)
                         }
-                        Divider(Modifier.height(10.dp), color = MaterialTheme.colorScheme.surface)
                     }
                 }
             }
+        }
+
 
     }
 

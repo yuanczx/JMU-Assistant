@@ -37,13 +37,13 @@ fun UserScreen(viewModel: MenuViewModel) {
         modifier = Modifier
             .verticalScroll(rememberScrollState())
             .padding(7.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 5.dp, bottom = 15.dp)
-                    .clip(RoundedCornerShape(15.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 5.dp, bottom = 15.dp)
+                .clip(RoundedCornerShape(15.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
         ) {
             Image(
                 modifier = Modifier
@@ -59,34 +59,31 @@ fun UserScreen(viewModel: MenuViewModel) {
                 lineHeight = 28.sp
             )
         }
-        if (viewModel.showInfo)
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .animateContentSize()
-                .clip(RoundedCornerShape(15.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .clickable {
-                    maxLine = if (maxLine == 5) 50 else 5
-                }
-            ) {
-                Text(
-                    text = stringResource(id = R.string.basic_info),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(start = 15.dp, top = 15.dp, bottom = 5.dp)
-                )
-                Text(
-                    text = viewModel.basicInfo,
-                    fontSize = 13.sp,
-                    modifier = Modifier.padding(start = 15.dp, top = 5.dp, bottom = 15.dp),
-                    maxLines = maxLine
-                )
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize()
+            .clip(RoundedCornerShape(15.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .clickable {
+                maxLine = if (maxLine == 5) 50 else 5
             }
+        ) {
+            Text(
+                text = stringResource(id = R.string.basic_info),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 15.dp, top = 15.dp, bottom = 5.dp)
+            )
+            Text(
+                text = viewModel.basicInfo,
+                fontSize = 13.sp,
+                modifier = Modifier.padding(start = 15.dp, top = 5.dp, bottom = 15.dp),
+                maxLines = maxLine
+            )
+        }
     }
     LaunchedEffect(null) {
         if (viewModel.basicInfo.isBlank())
             viewModel.getStudentInfo()
-        else
-            viewModel.showInfo = true
     }
 }

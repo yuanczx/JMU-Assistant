@@ -85,6 +85,8 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
 //        return (colors[random.nextInt(4)])
 //    }
 
+
+    var showWeekend by mutableStateOf(false)
     val semesterItem = listOf(
         getString(R.string.second_semester_21_22),
         getString(R.string.first_semester_21_22)
@@ -116,7 +118,6 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
     val weekCourse: MutableMap<Int, MutableMap<Int, Triple<String, String, String>>> =
         mutableMapOf()
 
-    fun toast(s: String) = Toast.makeText(context(), s, Toast.LENGTH_SHORT).show()
 
 
     fun makeCourseTable() {
@@ -127,7 +128,8 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
                     if (activity.weekday == it + 1 && activity.weekIndexes.contains(weekSelector)) {
                         courseMap[activity.startUnit] = Triple(
                             activity.courseName,
-                            (activity.room ?: "").replace("*","").replace(Regex("(?=[0-9][0-9][0-9][0-9])"),"\n"),
+                            (activity.room ?: "").replace("*", "")
+                                .replace(Regex("(?=[0-9][0-9][0-9][0-9])"), "\n"),
                             activity.teachers.first()
                         )
                     }

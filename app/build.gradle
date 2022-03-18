@@ -10,8 +10,8 @@ android {
         applicationId "com.jmu.assistant"
         minSdk 22
         targetSdk 32
-        versionCode 4
-        versionName "1.0.3"
+        versionCode 5
+        versionName "1.0.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -50,21 +50,24 @@ dependencies {
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation "androidx.compose.ui:ui:$compose_version"
-    implementation 'androidx.compose.material3:material3:1.0.0-alpha05'
-    implementation 'androidx.compose.material:material:1.2.0-alpha04'
+    implementation 'androidx.compose.material3:material3:1.0.0-alpha07'
+    implementation 'androidx.compose.material:material:1.2.0-alpha05'
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
     implementation 'androidx.activity:activity-compose:1.4.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0'
-    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.5'//OkHttp
-    implementation 'androidx.navigation:navigation-compose:2.4.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1'
+    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.6'//OkHttp
+    implementation 'androidx.navigation:navigation-compose:2.4.1'
     implementation "androidx.datastore:datastore-preferences:1.0.0"//DataStore 数据存储
-    implementation 'com.google.accompanist:accompanist-navigation-animation:0.24.3-alpha'//动画Navigation
+    implementation 'com.google.accompanist:accompanist-navigation-animation:0.24.4-alpha'
+//动画Navigation
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'//Retrofit网络请求
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'//Retrofit Gson
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0"//ViewModel
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'//ViewModel
     implementation 'org.jsoup:jsoup:1.14.3'//Html解析
     implementation "io.coil-kt:coil-compose:1.4.0"
+    implementation "androidx.paging:paging-compose:1.0.0-alpha14"//Paging-Compose
+    implementation "com.google.accompanist:accompanist-swiperefresh:0.24.4-alpha" //SwipeRefresh
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
