@@ -56,7 +56,7 @@ fun MainActivity.MesseageScreen(mainNavHostController: NavHostController) {
             indicator = { tabPositions ->
                 TabRowDefaults.Indicator(
                     Modifier.tabIndicatorOffset(tabPositions[viewModel.selectedTabIndex]),
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             }
         ) {

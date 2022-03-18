@@ -119,7 +119,6 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
         mutableMapOf()
 
 
-
     fun makeCourseTable() {
         courseTable?.let { ct ->
             repeat(7) {
@@ -201,28 +200,31 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
                 val gap = course.weekIndexes.copyOf()//差值
                 val counts = course.weekIndexes.copyOf()//循环次数
                 var count = 1//计数
-
-                //计算gap
-                for (index in counts.indices) {
-                    if (index < counts.size - 1) {
-                        gap[index] = course.weekIndexes[index + 1] - course.weekIndexes[index]
-                    } else
-                        if (index != 0) gap[index] = gap[index - 1]
-                }
-
-                //计算counts
-                for (index in gap.indices) {
-                    if (index == gap.size - 1) {
-                        counts[index] = 0; break
+                if (gap.size == 1) {
+                    counts[0] = 1
+                } else {
+                    //计算gap
+                    for (index in counts.indices) {
+                        if (index < counts.size - 1) {
+                            gap[index] = course.weekIndexes[index + 1] - course.weekIndexes[index]
+                        } else
+                            if (index != 0) gap[index] = gap[index - 1]
                     }
 
-                    if (gap[index] == gap[index + 1]) {
-                        counts[index] = 0
-                        counts[index - count + 1] = ++count
-                    } else {
-                        count = 1
-                        counts[index] = 1
-                        if (index > 0 && gap[index - 1] == gap[index]) counts[index] = 0
+                    //计算counts
+                    for (index in gap.indices) {
+                        if (index == gap.size - 1) {
+                            counts[index] = 0; break
+                        }
+
+                        if (gap[index] == gap[index + 1]) {
+                            counts[index] = 0
+                            counts[index - count + 1] = ++count
+                        } else {
+                            count = 1
+                            counts[index] = 1
+                            if (index > 0 && gap[index - 1] == gap[index]) counts[index] = 0
+                        }
                     }
                 }
                 //拼接ICS文件
