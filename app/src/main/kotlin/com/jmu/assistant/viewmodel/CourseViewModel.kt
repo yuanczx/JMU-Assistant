@@ -53,7 +53,7 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
     )
     private val quitTime = listOf(
         "084500", "093500", "105000", "114000", "144500",
-        "153500", "164000", "173000", "194500", "203000"
+        "153500", "164000", "173000", "194500", "203500"
     )
     private val semesters = listOf(181, 61)
     val courseTime = listOf(
@@ -61,7 +61,7 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
         "10:05\n10:50", "10:55\n11:40",
         "14:00\n14:45", "14:50\n15:35",
         "15:55\n16:40", "16:45\n17:30",
-        "19:00\n19:45", "19:50\n20:30"
+        "19:00\n19:45", "19:50\n20:35"
     )
 
     val weekDayName = listOf(
