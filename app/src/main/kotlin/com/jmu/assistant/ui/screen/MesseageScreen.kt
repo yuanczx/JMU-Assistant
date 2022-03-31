@@ -18,6 +18,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
@@ -33,8 +34,8 @@ fun MainActivity.MesseageScreen(mainNavHostController: NavHostController) {
     /**
      * @Author yuanczx
      * @Description 信息界面
-     * @Date 2022/3/15 20:57
-     * @Params []
+     * @Date 2022/3/21 9:18
+     * @Params [mainNavHostController]
      * @Return
      **/
     val viewModel: MesseageViewModel = viewModel()
@@ -66,10 +67,11 @@ fun MainActivity.MesseageScreen(mainNavHostController: NavHostController) {
                     onClick = { viewModel.selectedTabIndex = it; })
             }
         }
-        SwipeRefresh(state = swipeRefreshState, onRefresh = {
+        SwipeRefresh(state = swipeRefreshState, indicator = { s, trigger ->
+            SwipeRefreshIndicator(s, trigger, contentColor = MaterialTheme.colorScheme.primary)
+        }, onRefresh = {
             items.refresh()
         }) {
-
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally

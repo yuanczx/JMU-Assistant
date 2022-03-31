@@ -10,8 +10,8 @@ android {
         applicationId "com.jmu.assistant"
         minSdk 22
         targetSdk 32
-        versionCode 5
-        versionName "1.0.4"
+        versionCode 6
+        versionName "1.0.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -59,7 +59,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.6'//OkHttp
     implementation 'androidx.navigation:navigation-compose:2.4.1'
     implementation "androidx.datastore:datastore-preferences:1.0.0"//DataStore 数据存储
-    implementation 'com.google.accompanist:accompanist-navigation-animation:0.24.4-alpha'
+    implementation 'com.google.accompanist:accompanist-navigation-animation:0.24.5-alpha'
 //动画Navigation
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'//Retrofit网络请求
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'//Retrofit Gson
@@ -67,7 +67,7 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.14.3'//Html解析
     implementation "io.coil-kt:coil-compose:1.4.0"
     implementation "androidx.paging:paging-compose:1.0.0-alpha14"//Paging-Compose
-    implementation "com.google.accompanist:accompanist-swiperefresh:0.24.4-alpha" //SwipeRefresh
+    implementation 'com.google.accompanist:accompanist-swiperefresh:0.24.5-alpha' //SwipeRefresh
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

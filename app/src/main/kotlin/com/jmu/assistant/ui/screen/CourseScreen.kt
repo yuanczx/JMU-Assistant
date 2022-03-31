@@ -55,6 +55,7 @@ fun CourseScreen(navController: NavHostController) {
     val viewModel: CourseViewModel = viewModel()
 
     LaunchedEffect(key1 = null, block = {
+        if (viewModel.loadFinish) return@LaunchedEffect
         viewModel.getCourseTable()
         viewModel.makeCourseTable()
         viewModel.loadFinish = true
@@ -74,9 +75,8 @@ fun CourseScreen(navController: NavHostController) {
             ) {
                 if (viewModel.semesterIndex != it) scope.launch {
                     viewModel.semesterIndex = it //设置索引
-                    viewModel.weekSelector = 1
                     viewModel.getCourseTable() //获取课程表
-                    viewModel.makeCourseTable()
+                    viewModel.makeCourseTable(1)
                     viewModel.loadFinish = true
                 }
             }
@@ -86,12 +86,8 @@ fun CourseScreen(navController: NavHostController) {
                 repeatTimes = 18,
                 item = { "第${it + 1}周" })
             {
-                viewModel.loadFinish = false
-                viewModel.weekSelector = it + 1
-                viewModel.makeCourseTable()
-                viewModel.loadFinish = true
+                viewModel.makeCourseTable(it+1)
             }
-
 
             IconDropMenu(
                 painter = rememberVectorPainter(image = Icons.Default.MoreVert),
@@ -101,7 +97,10 @@ fun CourseScreen(navController: NavHostController) {
                     Pair(stringResource(id = R.string.show_weekend)) {
                         Checkbox(
                             checked = viewModel.showWeekend,
-                            onCheckedChange = { viewModel.showWeekend = it }
+                            onCheckedChange = {
+                                viewModel.showWeekend = it
+                                viewModel.handle = true
+                            }
                         )
                     },
                     Pair(stringResource(id = R.string.refresh)) {
@@ -111,13 +110,16 @@ fun CourseScreen(navController: NavHostController) {
                 onClick = {
                     when (it) {
                         0 -> {
+//                          导出ICS文件
                             viewModel.buildICS()
                             viewModel.exportICS()
                         }
                         1 -> {
+                            //显示周末
                             viewModel.showWeekend = !viewModel.showWeekend
                         }
                         2 -> {
+                            //刷新页面
                             scope.launch {
                                 viewModel.getCourseTable()
                             }
@@ -139,7 +141,6 @@ fun CourseScreen(navController: NavHostController) {
                 //时间轴
                 repeat(5) {
                     if (it == 0) Text(
-//                        modifier = Modifier.weight(0.05f),
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.Light,
                         text = stringResource(R.string.time),
@@ -173,7 +174,6 @@ fun CourseScreen(navController: NavHostController) {
                         color = Color.Transparent
                     )
                 }
-//                Divider(thickness = 10.dp, color = Color.Transparent)
             }
             Row(
                 modifier = Modifier
@@ -184,7 +184,7 @@ fun CourseScreen(navController: NavHostController) {
                     Column(
                         modifier = if (viewModel.showWeekend) Modifier
                             .fillMaxHeight()
-                            .requiredWidth(65.dp)
+                            .requiredWidth(68.dp)
                         else Modifier
                             .weight(0.2f),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -214,7 +214,7 @@ fun CourseScreen(navController: NavHostController) {
                                     Column(
                                         Modifier
                                             .fillMaxSize()
-                                            .clickable { viewModel.toast("${it.first} \n ${it.second}") },
+                                            .clickable { viewModel.toast("${it.first} \n ${it.second.replace(Regex("\\s")," ")}") },
                                         verticalArrangement = Arrangement.SpaceBetween,
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
@@ -235,6 +235,7 @@ fun CourseScreen(navController: NavHostController) {
                                             text = it.second,
                                             textAlign = TextAlign.Center,
                                             fontSize = 12.sp,
+                                            maxLines = 2,
                                             modifier = Modifier.padding(2.dp)
                                         )
                                         Text(

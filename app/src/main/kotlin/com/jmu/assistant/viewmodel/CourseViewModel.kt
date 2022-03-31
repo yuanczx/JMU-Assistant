@@ -5,12 +5,12 @@ import android.app.Application
 import android.content.Intent
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.FileProvider
@@ -23,15 +23,13 @@ import retrofit2.awaitResponse
 import java.io.File
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 class CourseViewModel(application: Application) : BaseViewModel(application) {
-
-
     companion object {
-
         private const val ICS_START =
             """BEGIN:VCALENDAR VERSION:2.0 
                 PRODID:yuanczx BEGIN:VTIMEZONE 
@@ -45,52 +43,19 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
                 DTSTART:19700101T000000
                 END:STANDARD
                 END:VTIMEZONE   """
-        private val WEEKDAY = arrayOf("MO", "TU", "WE", "TH", "FR", "SA", "SU")
-        private val CLASS_TIME = listOf(
-            "080000",
-            "085000",
-            "100500",
-            "105500",
-            "140000",
-            "145000",
-            "155500",
-            "164500",
-            "190000",
-            "1950000"
-        )
-        private val QUITE_TIME = listOf(
-            "084500",
-            "093500",
-            "105000",
-            "114000",
-            "144500",
-            "153500",
-            "164000",
-            "173000",
-            "194500",
-            "203000"
-        )
-        private val SEMESTER = listOf(181, 61)
-
-        @RequiresApi(Build.VERSION_CODES.O)
-        private val START_DATE =
-            listOf(LocalDate.parse("2022-02-20"), LocalDate.parse("2021-09-05"))
-
     }
 
-
-//    fun randomColor(): androidx.compose.ui.graphics.Color {
-//        val random = Random()
-//        val colors = listOf(Green, GeekBlue, Purple, Orange)
-//        return (colors[random.nextInt(4)])
-//    }
-
-
-    var showWeekend by mutableStateOf(false)
-    val semesterItem = listOf(
-        getString(R.string.second_semester_21_22),
-        getString(R.string.first_semester_21_22)
+    var handle by mutableStateOf(false)
+    private val weekDay = arrayOf("MO", "TU", "WE", "TH", "FR", "SA", "SU")
+    private val classTime = listOf(
+        "080000", "085000", "100500", "105500", "140000",
+        "145000", "155500", "164500", "190000", "195000"
     )
+    private val quitTime = listOf(
+        "084500", "093500", "105000", "114000", "144500",
+        "153500", "164000", "173000", "194500", "203000"
+    )
+    private val semesters = listOf(181, 61)
     val courseTime = listOf(
         "8:00\n8:45", "8:50\n9:35",
         "10:05\n10:50", "10:55\n11:40",
@@ -108,6 +73,16 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
         getString(R.string.Saturday),
         getString(R.string.Sunday),
     )
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private val startDate = listOf(LocalDate.parse("2022-02-20"), LocalDate.parse("2021-09-05"))
+
+    var showWeekend by mutableStateOf(false)
+    val semesterItem = listOf(
+        getString(R.string.second_semester_21_22),
+        getString(R.string.first_semester_21_22)
+    )
+
     var weekSelector by mutableStateOf(1)
     var loadFinish by mutableStateOf(false)
     private var ics by mutableStateOf("")
@@ -115,16 +90,42 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
     private var courseTable: CourseTable? = null
     var loadCourse by mutableStateOf(false)
 
+    //课表结构：                 周次            [星期        课程名字  教室     教师]
     val weekCourse: MutableMap<Int, MutableMap<Int, Triple<String, String, String>>> =
-        mutableMapOf()
+        mutableStateMapOf()
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun calculateWeek(): Int {
+        /**
+         * @Author yuanczx
+         * @Description 计算当前周次
+         * @Date 2022/3/27 10:25
+         * @Params []
+         * @Return 当前周次
+         **/
+        val weeks = ChronoUnit.WEEKS.between(startDate[semesterIndex].plusDays(1), LocalDate.now())
+        if (weeks >= 19 || weeks <= 1) {
+            return 1
+        }
+        return (weeks + 1).toInt()
+    }
 
-    fun makeCourseTable() {
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun makeCourseTable(week: Int = 0) {
+        /**
+         * @Author yuanczx
+         * @Description 生成课表
+         * @Date 2022/3/27 10:26
+         * @Params [week]
+         * @Return
+         **/
+        weekSelector = if (week == 0) calculateWeek() else week
         courseTable?.let { ct ->
             repeat(7) {
                 val courseMap = mutableMapOf<Int, Triple<String, String, String>>()
                 ct.studentTableVm.activities.forEach { activity ->
                     if (activity.weekday == it + 1 && activity.weekIndexes.contains(weekSelector)) {
+                        if (!handle) showWeekend = (activity.weekday>5)
                         courseMap[activity.startUnit] = Triple(
                             activity.courseName,
                             (activity.room ?: "").replace("*", "")
@@ -145,7 +146,7 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
         loadCourse = true
         try {
             val response = HttpTool.api.getCourse(
-                semester = SEMESTER[semesterIndex],
+                semester = semesters[semesterIndex],
                 studentId = MainActivity.studentID
             ).awaitResponse()
             if (response.isSuccessful) {
@@ -161,33 +162,30 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
         } catch (e: Exception) {
             loadCourse = false
             Log.e(e.toString(), e.message.toString())
-            Toast.makeText(
-                context(),
-                context().getString(R.string.request_fail),
-                Toast.LENGTH_SHORT
-            ).show()
+            toast(R.string.request_fail)
         }
     }
 
     @SuppressLint("SdCardPath")
     @RequiresApi(Build.VERSION_CODES.O)
     fun exportICS() {
-        val fileDire = File("/data/data/com.jmu.assistant/files/CourseTable")
-        fileDire.deleteRecursively()
-        fileDire.mkdirs()
-        val icsFile = File("${fileDire.path}/Course-${LocalTime.now()}.ics")
-        icsFile.createNewFile()
-        val intent = Intent()
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        intent.action = Intent.ACTION_VIEW
-        intent.data =
-            FileProvider.getUriForFile(context(), "com.jmu.assistant.fileprovider", icsFile)
-        icsFile.writeText(ics)
-        toast(R.string.select_app_toast)
         try {
+            val fileDire = File("/data/data/com.jmu.assistant/files/CourseTable")
+            fileDire.deleteRecursively()
+            fileDire.mkdirs()
+            val icsFile = File("${fileDire.path}/Course-${LocalTime.now()}.ics")
+            icsFile.createNewFile()
+            val intent = Intent()
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            intent.action = Intent.ACTION_VIEW
+            intent.data =
+                FileProvider.getUriForFile(context(), "com.jmu.assistant.fileprovider", icsFile)
+            icsFile.writeText(ics)
+            toast(R.string.select_app_toast)
             context().startActivity(intent)
         } catch (e: Exception) {
+            toast(R.string.export_ics_error)
             Log.d("StartActivity", e.message.toString())
         }
     }
@@ -229,7 +227,7 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
                 }
                 //拼接ICS文件
                 ics += makeEventWithWeeks(
-                    START_DATE[semesterIndex],
+                    startDate[semesterIndex],
                     counts = counts,
                     gap = gap,
                     course = course
@@ -257,11 +255,11 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
                 UID:yuanczx@${UUID.randomUUID()}
                 DTSTART;TZID=Asia/Shanghai:${
                     date.toString().replace("-", "")
-                }T${CLASS_TIME[course.startUnit - 1]}
-                RRULE:FREQ=WEEKLY;INTERVAL=${if (counts[index] >= 2) gap[index] else "1"};BYDAY=${WEEKDAY[course.weekday - 1]};COUNT=${counts[index]}
+                }T${classTime[course.startUnit - 1]}
+                RRULE:FREQ=WEEKLY;INTERVAL=${if (counts[index] >= 2) gap[index] else "1"};BYDAY=${weekDay[course.weekday - 1]};COUNT=${counts[index]}
                 DTEND;TZID=Asia/Shanghai:${
                     date.toString().replace("-", "")
-                }T${QUITE_TIME[course.endUnit - 1]}
+                }T${quitTime[course.endUnit - 1]}
                 SUMMARY:${course.courseName.replace(Regex("\\s"), "")}
                 DESCRIPTION:${
                     course.teachers.toArray().contentToString().replace("[", "").replace("]", "")
