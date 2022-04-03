@@ -56,7 +56,8 @@ fun MainActivity.MenuScreen(mainNavHostController: NavHostController) {
     var scroll by remember { mutableStateOf(false) }
     val scrollBehavior = remember { TopAppBarDefaults.enterAlwaysScrollBehavior() }
     LaunchedEffect(key1 = null, block = {
-        viewModel.checkUpdate(false)
+        //检查更新
+        if(viewModel.versionName.isBlank()) viewModel.checkUpdate(false)
     })
     Scaffold(
         modifier = Modifier
@@ -73,6 +74,7 @@ fun MainActivity.MenuScreen(mainNavHostController: NavHostController) {
                             stringResource(id = R.string.check_update)
                         ),
                         onClick = {
+                            //菜单点击事件
                             when (it) {
                                 0 -> scope.launch {
                                     dataStore.edit { ds -> ds[MainActivity.COOKIE_KEY] = "" }
@@ -84,7 +86,9 @@ fun MainActivity.MenuScreen(mainNavHostController: NavHostController) {
                                         }
                                     }
                                 }
-                                1 -> { viewModel.checkUpdate() }
+                                1 -> {
+                                    viewModel.checkUpdate()
+                                }
                             }
                         }
                     )

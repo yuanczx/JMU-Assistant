@@ -81,7 +81,12 @@ fun MainActivity.MesseageScreen(mainNavHostController: NavHostController) {
                     news?.let {
                         NewsItem(news = it) { link ->
                             mainViewModel.articalLink = link
-                            mainNavHostController.navigate(ContentNav.Info.route)
+                            mainNavHostController.navigate(ContentNav.Info.route){
+                                popUpTo(mainNavHostController.graph.startDestinationId){
+                                    inclusive = false
+                                }
+                                launchSingleTop = true
+                            }
                         }
                     }
                 }

@@ -24,18 +24,23 @@ import com.jmu.assistant.viewmodel.InfoViewModel
 @Composable
 fun MainActivity.InfoScreen(mainNavHostController: NavHostController) {
 
-   val viewModel:InfoViewModel = viewModel()
+    val viewModel: InfoViewModel = viewModel()
     LaunchedEffect(key1 = null, block = {
         viewModel.getInfo(mainViewModel.articalLink)
     })
     Column(modifier = Modifier.fillMaxSize()) {
-        TopBar(titleId = R.string.Info, navigationIcon = { BackIcon(navController = mainNavHostController)})
-        AndroidView(modifier = Modifier.fillMaxSize(),factory = { WebView(it).apply {
-        } }){
-            if (viewModel.loadUrl){
+        TopBar(
+            titleId = R.string.Info,
+            navigationIcon = { BackIcon(navController = mainNavHostController) })
+        AndroidView(modifier = Modifier.fillMaxSize(), factory = {
+            WebView(it).apply {
+
+            }
+        }) {
+            if (viewModel.loadUrl) {
                 it.loadUrl(mainViewModel.articalLink)
-            }else{
-                it.loadData(viewModel.data,"text/html","utf-8")
+            } else {
+                it.loadData(viewModel.data, "text/html", "utf-8")
             }
         }
     }
