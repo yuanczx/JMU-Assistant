@@ -3,9 +3,7 @@ package com.jmu.assistant.viewmodel
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Intent
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -74,7 +72,6 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
         getString(R.string.Sunday),
     )
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private val startDate = listOf(LocalDate.parse("2022-02-20"), LocalDate.parse("2021-09-05"))
 
     var showWeekend by mutableStateOf(false)
@@ -94,8 +91,7 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
     val weekCourse: MutableMap<Int, MutableMap<Int, Triple<String, String, String>>> =
         mutableStateMapOf()
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun calculateWeek(): Int {
+    private fun calculateWeek(): Int {
         /**
          * @Author yuanczx
          * @Description 计算当前周次
@@ -110,7 +106,6 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
         return (weeks + 1).toInt()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun makeCourseTable(week: Int = 0) {
         /**
          * @Author yuanczx
@@ -141,7 +136,6 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
 
 
     @ExperimentalMaterial3Api
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun getCourseTable() {
         loadCourse = true
         try {
@@ -167,7 +161,6 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
     }
 
     @SuppressLint("SdCardPath")
-    @RequiresApi(Build.VERSION_CODES.O)
     fun exportICS() {
         try {
             val fileDire = File("/data/data/com.jmu.assistant/files/CourseTable")
@@ -190,7 +183,6 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun buildICS() {
         ics = ICS_START.trimIndent()
         courseTable?.let { ct ->
@@ -239,8 +231,7 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun makeEventWithWeeks(
+    private fun makeEventWithWeeks(
         startDate: LocalDate,
         gap: IntArray,
         counts: IntArray,

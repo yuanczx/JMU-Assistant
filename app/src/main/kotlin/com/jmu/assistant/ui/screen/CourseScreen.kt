@@ -2,8 +2,6 @@ package com.jmu.assistant.ui.screen
 
 
 import android.annotation.SuppressLint
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -40,7 +38,6 @@ import kotlinx.coroutines.launch
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
 @SuppressLint("SdCardPath")
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CourseScreen(navController: NavHostController) {
     /**

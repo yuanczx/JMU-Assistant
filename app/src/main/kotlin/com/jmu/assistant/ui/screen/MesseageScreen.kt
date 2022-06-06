@@ -61,17 +61,15 @@ fun MainActivity.MesseageScreen(mainNavHostController: NavHostController) {
                 )
             }
         ) {
-            repeat(4) {
-                Tab(text = { Text(text = viewModel.msgList[it]) },
-                    selected = viewModel.selectedTabIndex == it,
-                    onClick = { viewModel.selectedTabIndex = it; })
+            viewModel.msgList.forEachIndexed { index, s ->
+                Tab(text = { Text(text = s) },
+                    selected = viewModel.selectedTabIndex == index,
+                    onClick = { viewModel.selectedTabIndex = index; })
             }
         }
         SwipeRefresh(state = swipeRefreshState, indicator = { s, trigger ->
             SwipeRefreshIndicator(s, trigger, contentColor = MaterialTheme.colorScheme.primary)
-        }, onRefresh = {
-            items.refresh()
-        }) {
+        }, onRefresh = items::refresh) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -81,8 +79,8 @@ fun MainActivity.MesseageScreen(mainNavHostController: NavHostController) {
                     news?.let {
                         NewsItem(news = it) { link ->
                             mainViewModel.articalLink = link
-                            mainNavHostController.navigate(ContentNav.Info.route){
-                                popUpTo(mainNavHostController.graph.startDestinationId){
+                            mainNavHostController.navigate(ContentNav.Info.route) {
+                                popUpTo(mainNavHostController.graph.startDestinationId) {
                                     inclusive = false
                                 }
                                 launchSingleTop = true

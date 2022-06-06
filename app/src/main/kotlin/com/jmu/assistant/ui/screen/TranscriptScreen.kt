@@ -10,8 +10,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Tab
-import androidx.compose.material.TabRow
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -64,22 +64,32 @@ fun TranscriptScreen(navHostController: NavHostController) {
         modifier = Modifier
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = { TopBar(R.string.Transcript, scrollBehavior, navigationIcon = { BackIcon(
-            navController = navHostController
-        )}) }
+        topBar = {
+            TopBar(R.string.Transcript, scrollBehavior, navigationIcon = {
+                BackIcon(
+                    navController = navHostController
+                )
+            })
+        }
     ) {
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
 
             //显示学期Tabs
-            if (viewModel.showTabs) TabRow(
+            if (viewModel.showTabs) ScrollableTabRow(
                 selectedTabIndex = viewModel.selectedTab,
-                backgroundColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.background
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.background,
+                edgePadding = 5.dp,
+                indicator = @Composable { tabPositions ->
+                    TabRowDefaults.Indicator(
+                        color = MaterialTheme.colorScheme.background,
+                        modifier = Modifier.tabIndicatorOffset(tabPositions[viewModel.selectedTab])
+                    )
+                }
             ) {
                 viewModel.semesters?.let {
                     it.forEachIndexed { index, element ->
-                        Tab(
-                            selected = index == viewModel.selectedTab,
+                        Tab(selected = index == viewModel.selectedTab,
                             onClick = { clickTab(index, element) },
                             text = {
                                 Text(

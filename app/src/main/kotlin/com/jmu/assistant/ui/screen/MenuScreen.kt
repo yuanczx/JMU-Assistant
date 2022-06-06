@@ -10,10 +10,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -53,16 +55,12 @@ fun MainActivity.MenuScreen(mainNavHostController: NavHostController) {
     val viewModel: MenuViewModel = viewModel()
     val navController = rememberAnimatedNavController()
     val scope = rememberCoroutineScope()
-    var scroll by remember { mutableStateOf(false) }
-    val scrollBehavior = remember { TopAppBarDefaults.enterAlwaysScrollBehavior() }
     LaunchedEffect(key1 = null, block = {
         //检查更新
-        if(viewModel.versionName.isBlank()) viewModel.checkUpdate(false)
+        if (viewModel.versionName.isBlank()) viewModel.checkUpdate(false)
     })
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = Modifier.fillMaxSize(),
         topBar = {
             TopBar(
                 actions = {
@@ -93,22 +91,18 @@ fun MainActivity.MenuScreen(mainNavHostController: NavHostController) {
                         }
                     )
                 },
-                scrollBehavior = if (scroll) scrollBehavior else null
             )
         },
         bottomBar = { BottomBar(navController = navController) }) {
         AnimatedNavHost(navController = navController, startDestination = BtmNav.Func.route) {
             composable(BtmNav.Func.route) {
                 FuncScreen(navController = mainNavHostController)
-                scroll = false
             }
             composable(BtmNav.User.route) {
                 UserScreen(viewModel = viewModel)
-                scroll = false
             }
             composable(BtmNav.News.route) {
                 MesseageScreen(mainNavHostController)
-                scroll = true
             }
         }
         if (viewModel.checkingUpdate) {
