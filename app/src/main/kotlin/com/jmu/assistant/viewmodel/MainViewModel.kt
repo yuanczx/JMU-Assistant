@@ -33,9 +33,7 @@ class MainViewModel : ViewModel() {
             startRoute = ContentNav.Login.route
             return
         }
-
         getStudentId()
-
     }
 
     suspend fun getStudentId() {
