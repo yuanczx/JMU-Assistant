@@ -8,9 +8,16 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.lifecycle.viewModelScope
+import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
+import com.jmu.assistant.dataStore
+import com.jmu.assistant.models.DataStoreObject.COOKIE_KEY
 import com.jmu.assistant.utils.awaitResponse
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -28,7 +35,7 @@ class LoginViewModel(application: Application) : BaseViewModel(application) {
     val passWordKey = stringPreferencesKey("password")
     var rememberPwd by mutableStateOf(false)
     var passwordHidden by mutableStateOf(true)
-    var mCookie by mutableStateOf("")
+    private var mCookie by mutableStateOf("")
     var userName by mutableStateOf("")
     var passWord by mutableStateOf("")
     private val client by lazy {
@@ -71,48 +78,74 @@ class LoginViewModel(application: Application) : BaseViewModel(application) {
     @ExperimentalAnimationApi
     @ExperimentalMaterial3Api
     @ExperimentalFoundationApi
-    suspend fun login(): Boolean {
-        var localCookie = ""
+    fun login(afterLogin:suspend ()->Unit) {
+        viewModelScope.launch {
+            var localCookie = ""
 
-        //User Password 格式基本判断
-        if (userName.isBlank() || passWord.isBlank() || userName.length < 10) {
-            toast(R.string.makesure_input_correct)
-            return false
-        }
-
-        try {
-            //获取SESSION
-            val sessionRsp = client.newCall(buildRequest(BASE_URL_LOGIN)).awaitResponse()
-            sessionRsp.header("set-cookie")?.let {
-                session = it.substring(it.indexOf("SESSION="), it.indexOf(";"))
+            //User Password 格式基本判断
+            if (userName.isBlank() || passWord.isBlank() || userName.length < 10) {
+                toast(R.string.makesure_input_correct)
+                cancel()
             }
-        } catch (e: IOException) {
-            //网络错误
-            Log.d(TAG, e.message!!)
-            toast(R.string.network_error)
-            return false
-        }
 
-        client.newCall(postRequest()).awaitResponse().header("location")?.let {
-            client.newCall(buildRequest(it)).awaitResponse().headers("set-cookie")
-                .forEach { cookie ->
-                    localCookie += cookie.substring(0, cookie.indexOf(";") + 1)
+            try {
+                //获取SESSION
+                val sessionRsp = client.newCall(buildRequest(BASE_URL_LOGIN)).awaitResponse()
+                sessionRsp.header("set-cookie")?.let {
+                    session = it.substring(it.indexOf("SESSION="), it.indexOf(";"))
                 }
-            //获取Cookie
-            localCookie = localCookie.removeSuffix(";")
-        }
+            } catch (e: IOException) {
+                //网络错误
+                Log.d(TAG, e.message!!)
+                toast(R.string.network_error)
+                cancel()
+            }
 
-        val lastRsp =
-            client.newCall(buildRequest("http://jwxt.jmu.edu.cn/student/sso/login", localCookie))
-                .awaitResponse()
-        val login = lastRsp.header("location").toString() == FLAG_URL
+            client.newCall(postRequest()).awaitResponse().header("location")?.let {
+                client.newCall(buildRequest(it)).awaitResponse().headers("set-cookie")
+                    .forEach { cookie ->
+                        localCookie += cookie.substring(0, cookie.indexOf(";") + 1)
+                    }
+                //获取Cookie
+                localCookie = localCookie.removeSuffix(";")
+            }
 
-        //登录状态判断
-        if (!login) toast(R.string.login_fail) else {
-            mCookie = localCookie
+            val lastRsp =
+                client.newCall(
+                    buildRequest(
+                        "http://jwxt.jmu.edu.cn/student/sso/login",
+                        localCookie
+                    )
+                ).awaitResponse()
+            val login = lastRsp.header("location").toString() == FLAG_URL
+
+            //登录状态判断
+            if (!login) toast(R.string.login_fail) else {
+                mCookie = localCookie
+                MainActivity.cookie = mCookie
+                updateCookie()
+                afterLogin()
+            }
         }
-        return login
     }
 
-    fun clearUser() { userName = "" }
+    fun clearUser() {
+        userName = ""
+    }
+
+    @ExperimentalAnimationApi
+    @ExperimentalMaterial3Api
+    @ExperimentalFoundationApi
+    suspend fun updateCookie() {
+        context().dataStore.edit {
+            it[COOKIE_KEY] = mCookie
+            if (rememberPwd) {
+                it[userNameKey] = userName
+                it[passWordKey] = passWord
+            } else {
+                it[passWordKey] = ""
+                it[userNameKey] = ""
+            }
+        }
+    }
 }

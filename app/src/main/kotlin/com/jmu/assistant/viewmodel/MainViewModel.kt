@@ -11,9 +11,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import com.jmu.assistant.MainActivity
-import com.jmu.assistant.MainActivity.Companion.COOKIE_KEY
 import com.jmu.assistant.MainActivity.Companion.studentID
-import com.jmu.assistant.entity.ContentNav
+import com.jmu.assistant.models.DataStoreObject.COOKIE_KEY
 import com.jmu.assistant.utils.HttpTool
 import kotlinx.coroutines.flow.first
 import org.jsoup.Jsoup
@@ -25,12 +24,12 @@ import retrofit2.awaitResponse
 class MainViewModel : ViewModel() {
 
     var articalLink by mutableStateOf("")
-    var startRoute by mutableStateOf(ContentNav.Menu.route)
+    var login by mutableStateOf(true)
 
     suspend fun judgeStartRoute(dataStore: DataStore<Preferences>) {
         MainActivity.cookie = dataStore.data.first()[COOKIE_KEY] ?: ""
         if (MainActivity.cookie.isEmpty()) {
-            startRoute = ContentNav.Login.route
+            login = false
             return
         }
         getStudentId()
@@ -50,16 +49,15 @@ class MainViewModel : ViewModel() {
                 }
             }
 
-
             if (redirect.contains("login?refer")) {
-                startRoute = ContentNav.Login.route
+                login = false
             } else {
-                startRoute = ContentNav.Menu.route
+                login = true
                 studentID = redirect.substringAfter("/info/")
                 Log.d("StudentID", studentID)
             }
         } catch (e: Exception) {
-            startRoute = ContentNav.Login.route
+            login = false
             Log.e(e.toString(), e.message.toString())
         }
     }

@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -33,6 +32,7 @@ import com.jmu.assistant.R
 import com.jmu.assistant.dataStore
 import com.jmu.assistant.entity.BtmNav
 import com.jmu.assistant.entity.ContentNav
+import com.jmu.assistant.models.DataStoreObject.COOKIE_KEY
 import com.jmu.assistant.ui.widgets.IconDropMenu
 import com.jmu.assistant.ui.widgets.ProgressDialog
 import com.jmu.assistant.ui.widgets.TopBar
@@ -75,7 +75,7 @@ fun MainActivity.MenuScreen(mainNavHostController: NavHostController) {
                             //菜单点击事件
                             when (it) {
                                 0 -> scope.launch {
-                                    dataStore.edit { ds -> ds[MainActivity.COOKIE_KEY] = "" }
+                                    dataStore.edit { ds -> ds[COOKIE_KEY] = "" }
                                     MainActivity.cookie = ""
                                     mainNavHostController.navigate(ContentNav.Login.route) {
                                         launchSingleTop = true
@@ -150,13 +150,14 @@ fun BottomBar(navController: NavHostController) {
             NavigationBarItem(alwaysShowLabel = false,
                 selected = currentDes?.hierarchy?.any { it.route == screen.route } == true,
                 onClick = {
+                    navController.popBackStack()
                     navController.navigate(screen.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
+                            popUpTo(ContentNav.Menu.route) {
+                                inclusive = true
+                                saveState = true
+                            }
                         launchSingleTop = true
-                        restoreState = true
-                    }
+                        restoreState = true}
                 },
                 label = {
                     Text(text = stringResource(id = screen.stringId))

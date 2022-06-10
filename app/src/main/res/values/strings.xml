@@ -52,4 +52,6 @@
     <string name="News">信息</string>
     <string name="Info">信息</string>
     <string name="export_ics_error">未知错误</string>
+    <string name="add_course">添加课程</string>
+    <string name="add">添加</string>
 </resources>

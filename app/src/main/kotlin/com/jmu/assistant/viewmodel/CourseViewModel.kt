@@ -43,6 +43,7 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
                 END:VTIMEZONE   """
     }
 
+
     var handle by mutableStateOf(false)
     private val weekDay = arrayOf("MO", "TU", "WE", "TH", "FR", "SA", "SU")
     private val classTime = listOf(
@@ -77,9 +78,11 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
     var showWeekend by mutableStateOf(false)
     val semesterItem = listOf(
         getString(R.string.second_semester_21_22),
-        getString(R.string.first_semester_21_22)
+        getString(R.string.first_semester_21_22),
     )
 
+    var addCourse by mutableStateOf(false)
+    var currentSelect by mutableStateOf(Pair(0, 0))
     var weekSelector by mutableStateOf(1)
     var loadFinish by mutableStateOf(false)
     private var ics by mutableStateOf("")
@@ -88,7 +91,7 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
     var loadCourse by mutableStateOf(false)
 
     //课表结构：                 周次            [星期        课程名字  教室     教师]
-    val weekCourse: MutableMap<Int, MutableMap<Int, Triple<String, String, String>>> =
+    val semesterCourse: MutableMap<Int, MutableMap<Int, MutableMap<Int, Triple<String, String, String>>>> =
         mutableStateMapOf()
 
     private fun calculateWeek(): Int {
@@ -115,12 +118,18 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
          * @Return
          **/
         weekSelector = if (week == 0) calculateWeek() else week
+
+        if (semesterCourse[weekSelector].isNullOrEmpty()) {
+            semesterCourse[weekSelector] = mutableStateMapOf()
+        } else {
+            return
+        }
         courseTable?.let { ct ->
             repeat(7) {
-                val courseMap = mutableMapOf<Int, Triple<String, String, String>>()
+                val courseMap = mutableStateMapOf<Int, Triple<String, String, String>>()
                 ct.studentTableVm.activities.forEach { activity ->
                     if (activity.weekday == it + 1 && activity.weekIndexes.contains(weekSelector)) {
-                        if (!handle) showWeekend = (activity.weekday>5)
+                        if (!handle) showWeekend = (activity.weekday > 5)
                         courseMap[activity.startUnit] = Triple(
                             activity.courseName,
                             (activity.room ?: "").replace("*", "")
@@ -129,7 +138,7 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
                         )
                     }
                 }
-                weekCourse[it + 1] = courseMap
+                semesterCourse[weekSelector]?.set(it+1, courseMap)
             }
         }
     }
@@ -267,4 +276,6 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
         }
         return event
     }
+
+
 }

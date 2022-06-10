@@ -14,7 +14,6 @@ import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -23,19 +22,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.jmu.assistant.MainActivity
-import com.jmu.assistant.MainActivity.Companion.COOKIE_KEY
-import com.jmu.assistant.MainActivity.Companion.cookie
 import com.jmu.assistant.R
 import com.jmu.assistant.dataStore
 import com.jmu.assistant.entity.ContentNav
 import com.jmu.assistant.ui.widgets.TopBar
 import com.jmu.assistant.viewmodel.LoginViewModel
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -53,12 +48,11 @@ fun MainActivity.LoginScreen(navHostController: NavController) {
      **/
 
     val viewModel: LoginViewModel = viewModel()
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = null, block = {
         viewModel.userName = dataStore.data.first()[viewModel.userNameKey] ?: ""
         viewModel.passWord = dataStore.data.first()[viewModel.passWordKey] ?: ""
-        if (viewModel.userName.isNotBlank()&& viewModel.passWord.isNotBlank()){
+        if (viewModel.userName.isNotBlank() && viewModel.passWord.isNotBlank()) {
             viewModel.rememberPwd = true
         }
     })
@@ -143,24 +137,11 @@ fun MainActivity.LoginScreen(navHostController: NavController) {
         }
         Spacer(modifier = Modifier.height(10.dp))
         ElevatedButton(modifier = Modifier.fillMaxWidth(0.8f), onClick = {
-            scope.launch {
-                if (viewModel.login()) {
-                    cookie = viewModel.mCookie
-                    dataStore.edit {
-                        it[COOKIE_KEY] = cookie
-                        if (viewModel.rememberPwd) {
-                            it[viewModel.userNameKey] = viewModel.userName
-                            it[viewModel.passWordKey] = viewModel.passWord
-                        }else{
-                            it[viewModel.passWordKey] = ""
-                            it[viewModel.userNameKey] = ""
-                        }
-                    }
-                    mainViewModel.getStudentId()
-                    navHostController.navigate(ContentNav.Menu.route) {
-                        popUpTo(ContentNav.Login.route){
-                            inclusive = true
-                        }
+            viewModel.login {
+                mainViewModel.getStudentId()
+                navHostController.navigate(ContentNav.Menu.route) {
+                    popUpTo(ContentNav.Login.route) {
+                        inclusive = true
                     }
                 }
             }

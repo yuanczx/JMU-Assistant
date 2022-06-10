@@ -32,9 +32,9 @@ fun MainActivity.MainScreen() {
     val mainNavController = rememberAnimatedNavController()
     LaunchedEffect(key1 = null, block = {
         mainViewModel.judgeStartRoute(dataStore)
-        if (mainViewModel.startRoute == ContentNav.Login.route) {
+        if (!mainViewModel.login) {
             mainNavController.clearBackStack(ContentNav.Menu.route)
-            mainNavController.navigate(mainViewModel.startRoute)
+            mainNavController.navigate(ContentNav.Login.route)
         }
     })
     Scaffold(Modifier.fillMaxSize()) {

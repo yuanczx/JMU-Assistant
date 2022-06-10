@@ -1,5 +1,6 @@
 package com.jmu.assistant
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,7 +12,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.jmu.assistant.ui.screen.MainScreen
 import com.jmu.assistant.ui.theme.TranscriptTheme
@@ -21,7 +21,7 @@ import com.jmu.assistant.viewmodel.MainViewModel
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
-val MainActivity.dataStore by preferencesDataStore(name = "main")
+val Context.dataStore by preferencesDataStore(name = "main")
 
 @ExperimentalFoundationApi
 @ExperimentalMaterial3Api
@@ -30,11 +30,9 @@ class MainActivity : ComponentActivity() {
     companion object {
         var studentID: String = ""
         var cookie: String = ""
-        val COOKIE_KEY = stringPreferencesKey("cookie")
     }
 
     val mainViewModel by viewModels<MainViewModel>()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
