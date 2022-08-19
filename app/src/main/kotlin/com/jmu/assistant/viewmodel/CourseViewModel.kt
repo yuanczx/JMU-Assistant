@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.content.FileProvider
+import com.google.gson.Gson
 import com.jmu.assistant.MainActivity
 import com.jmu.assistant.R
 import com.jmu.assistant.models.Activity
@@ -19,6 +20,7 @@ import com.jmu.assistant.models.CourseTable
 import com.jmu.assistant.utils.HttpTool
 import retrofit2.awaitResponse
 import java.io.File
+import java.io.IOException
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
@@ -27,6 +29,11 @@ import java.util.*
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 class CourseViewModel(application: Application) : BaseViewModel(application) {
+    private val gson = Gson()
+
+    @SuppressLint("SdCardPath")
+    private val jsonFile = File("/data/data/com.jmu.assistant/files/Course.json")
+
     companion object {
         private const val ICS_START =
             """BEGIN:VCALENDAR VERSION:2.0 
@@ -54,7 +61,7 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
         "084500", "093500", "105000", "114000", "144500",
         "153500", "164000", "173000", "194500", "203500"
     )
-    private val semesters = listOf(181, 61)
+    private val semesters = listOf(201, 181, 61)
     val courseTime = listOf(
         "8:00\n8:45", "8:50\n9:35",
         "10:05\n10:50", "10:55\n11:40",
@@ -62,6 +69,11 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
         "15:55\n16:40", "16:45\n17:30",
         "19:00\n19:45", "19:50\n20:35"
     )
+
+
+    var courseName by mutableStateOf("")
+    var room by mutableStateOf("")
+    var teacher by mutableStateOf("")
 
     val weekDayName = listOf(
         getString(R.string.Monday),
@@ -73,15 +85,20 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
         getString(R.string.Sunday),
     )
 
-    private val startDate = listOf(LocalDate.parse("2022-02-20"), LocalDate.parse("2021-09-05"))
+    private val startDate = listOf(
+        LocalDate.parse("2022-08-28"),
+        LocalDate.parse("2022-02-20"),
+        LocalDate.parse("2021-09-05")
+    )
 
     var showWeekend by mutableStateOf(false)
     val semesterItem = listOf(
+        getString(R.string.first_semester_22_23),
         getString(R.string.second_semester_21_22),
         getString(R.string.first_semester_21_22),
     )
 
-    var addCourse by mutableStateOf(false)
+    var addCourseDialog by mutableStateOf(false)
     var currentSelect by mutableStateOf(Pair(0, 0))
     var weekSelector by mutableStateOf(1)
     var loadFinish by mutableStateOf(false)
@@ -91,10 +108,10 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
     var loadCourse by mutableStateOf(false)
 
     //课表结构：                 周次            [星期        课程名字  教室     教师]
-    val semesterCourse: MutableMap<Int, MutableMap<Int, MutableMap<Int, Triple<String, String, String>>>> =
+    val weekCourse: MutableMap<Int, MutableMap<Int, Triple<String, String, String>>> =
         mutableStateMapOf()
 
-    private fun calculateWeek(): Int {
+    fun calculateWeek(): Int {
         /**
          * @Author yuanczx
          * @Description 计算当前周次
@@ -119,11 +136,6 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
          **/
         weekSelector = if (week == 0) calculateWeek() else week
 
-        if (semesterCourse[weekSelector].isNullOrEmpty()) {
-            semesterCourse[weekSelector] = mutableStateMapOf()
-        } else {
-            return
-        }
         courseTable?.let { ct ->
             repeat(7) {
                 val courseMap = mutableStateMapOf<Int, Triple<String, String, String>>()
@@ -133,20 +145,26 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
                         courseMap[activity.startUnit] = Triple(
                             activity.courseName,
                             (activity.room ?: "").replace("*", "")
-                                .replace(Regex("(?=[0-9][0-9][0-9][0-9])"), "\n"),
+                                .replaceFirst(Regex("(?=\\d)"), "\n"),
                             activity.teachers.first()
                         )
                     }
                 }
-                semesterCourse[weekSelector]?.set(it+1, courseMap)
+                weekCourse[it + 1] = courseMap
             }
         }
     }
 
 
     @ExperimentalMaterial3Api
-    suspend fun getCourseTable() {
+    suspend fun getCourseTable(refresh: Boolean = false) {
         loadCourse = true
+        if (jsonFile.exists() && !refresh) {
+            courseTable = gson.fromJson(jsonFile.readText(), CourseTable::class.java)
+            loadCourse = false
+            makeCourseTable()
+            return
+        }
         try {
             val response = HttpTool.api.getCourse(
                 semester = semesters[semesterIndex],
@@ -154,7 +172,6 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
             ).awaitResponse()
             if (response.isSuccessful) {
                 courseTable = response.body()
-//                courseTable = Gson().fromJson(courseJson,CourseTable::class.java)
                 courseTable?.let { course ->
                     course.studentTableVm.activities.forEach {
                         it.weekIndexes.sort()
@@ -167,6 +184,7 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
             Log.e(e.toString(), e.message.toString())
             toast(R.string.request_fail)
         }
+        courseToJson()
     }
 
     @SuppressLint("SdCardPath")
@@ -196,8 +214,8 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
         ics = ICS_START.trimIndent()
         courseTable?.let { ct ->
             ct.studentTableVm.activities.forEach { course ->
-                val gap = course.weekIndexes.copyOf()//差值
-                val counts = course.weekIndexes.copyOf()//循环次数
+                val gap = course.weekIndexes.toIntArray()//差值
+                val counts = course.weekIndexes.toIntArray()//循环次数
                 var count = 1//计数
                 if (gap.size == 1) {
                     counts[0] = 1
@@ -275,6 +293,71 @@ class CourseViewModel(application: Application) : BaseViewModel(application) {
             }
         }
         return event
+    }
+
+    fun addCourse() {
+        courseTable!!.studentTableVm.activities.find {
+            it.courseName == courseName
+                    && it.startUnit == currentSelect.second * 2 + 1
+                    && it.room == room
+                    && it.teachers.contains(teacher)
+        }?.let {
+            it.weekIndexes.add(weekSelector)
+            courseToJson()
+            return
+        }
+        courseTable!!.studentTableVm.activities.add(
+            Activity(
+                courseName = courseName,
+                weekIndexes = arrayListOf(weekSelector),
+                weekday = currentSelect.first + 1,
+                room = room,
+                startUnit = currentSelect.second * 2 + 1,
+                endUnit = currentSelect.second * 2 + 2,
+                teachers = arrayListOf(teacher)
+            )
+        )
+        courseToJson()
+    }
+
+    private fun courseToJson() {
+        makeCourseTable(weekSelector)
+        try {
+            if (!jsonFile.exists()) jsonFile.createNewFile()
+            val text = gson.toJson(courseTable)
+            jsonFile.writeText(text)
+        } catch (e: IOException) {
+            Log.e("WriteJson", "addCourse: ${e.message}")
+        }
+    }
+
+    fun isCourseExist() {
+        weekCourse[currentSelect.first + 1]?.get(currentSelect.second * 2 + 1)?.let {
+            courseName = it.first.replace(Regex("\\s"), "")
+            room = it.second.replace(Regex("\\s"), "")
+            teacher = it.third.replace(Regex("\\s"), "")
+            return
+        }
+        courseName = ""
+        teacher = ""
+        room = ""
+    }
+
+    fun deleteCourse() {
+        addCourseDialog = false
+        courseTable!!.studentTableVm.activities.find {
+            it.courseName == weekCourse[currentSelect.first + 1]?.get(currentSelect.second * 2 + 1)?.first
+                    && it.weekday == currentSelect.first + 1
+                    && it.weekIndexes.contains(weekSelector)
+                    && it.startUnit == currentSelect.second * 2 + 1
+        }?.let {
+            if (it.weekIndexes.size == 1) {
+                courseTable!!.studentTableVm.activities.remove(it)
+            } else {
+                it.weekIndexes.remove(weekSelector)
+            }
+        }
+        courseToJson()
     }
 
 

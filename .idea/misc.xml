@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Projects/OpenSource/JMU-Assistant/app/src/main/kotlin/com/jmu/assistant/ui/screen/CourseScreen.kt" value="0.4146341463414634" />
         <entry key="..\:/Projects/OpenSource/JMU-Assistant/app/src/main/res/drawable/ic_baseline_remove_red_eye_24.xml" value="0.169" />
         <entry key="..\:/Projects/OpenSource/JMU-Assistant/app/src/main/res/drawable/ic_baseline_visibility_24.xml" value="0.1695" />
         <entry key="..\:/Projects/OpenSource/JMU-Assistant/app/src/main/res/drawable/ic_baseline_visibility_off_24.xml" value="0.169" />

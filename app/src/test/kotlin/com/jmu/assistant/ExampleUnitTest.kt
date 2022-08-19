@@ -30,4 +30,11 @@ class ExampleUnitTest {
         val weeks = ChronoUnit.WEEKS.between(startDate[0].plusDays(1),LocalDate.now())
         println(weeks)
     }
+
+
+    @Test
+    fun testTrim(){
+        val text = "Hello\nworld"
+        println(text.replace(Regex("\\s"),""))
+    }
 }

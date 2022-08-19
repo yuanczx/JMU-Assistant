@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class Transcript(val semesterId2studentGrades: Semester)
 
 data class Semester(
+    @SerializedName("201") val semester_22_23_1:ArrayList<CourseInfo>?,
     @SerializedName("41") val semester_20_21_1: ArrayList<CourseInfo>?,
     @SerializedName("42") val semester_20_21_2: ArrayList<CourseInfo>?,
     @SerializedName("61") val semester_21_22_1: ArrayList<CourseInfo>?,

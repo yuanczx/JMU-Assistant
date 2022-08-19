@@ -9,10 +9,10 @@ data class StudentTableVm(
 
 data class Activity(
     val courseName: String,
-    val weekIndexes: IntArray,
+    val weekIndexes: ArrayList<Int>,
     val room: String?,
-    val building: String,
-    val campus: String,
+    val building: String="学校",
+    val campus: String="学校",
     val weekday: Int,
     val startUnit: Int,
     val endUnit: Int,

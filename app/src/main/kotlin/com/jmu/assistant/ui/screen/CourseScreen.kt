@@ -11,7 +11,9 @@ import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +56,7 @@ fun CourseScreen(navController: NavHostController) {
     LaunchedEffect(key1 = null, block = {
         if (viewModel.loadFinish) return@LaunchedEffect
         viewModel.getCourseTable()
-        viewModel.makeCourseTable()
+        viewModel.weekSelector = viewModel.calculateWeek()
         viewModel.loadFinish = true
     })
 
@@ -73,7 +75,7 @@ fun CourseScreen(navController: NavHostController) {
             ) {
                 if (viewModel.semesterIndex != it) scope.launch {
                     viewModel.semesterIndex = it //设置索引
-                    viewModel.getCourseTable() //获取课程表
+                    viewModel.getCourseTable(true) //获取课程表
                     viewModel.makeCourseTable(1)
                     viewModel.loadFinish = true
                 }
@@ -117,7 +119,7 @@ fun CourseScreen(navController: NavHostController) {
                         2 -> {
                             //刷新页面
                             scope.launch {
-                                viewModel.getCourseTable()
+                                viewModel.getCourseTable(true)
                             }
                         }
                     }
@@ -210,14 +212,9 @@ fun CourseScreen(navController: NavHostController) {
                                     .combinedClickable(
                                         onLongClickLabel = "add_event",
                                         onLongClick = {
-                                            viewModel.semesterCourse[weekday + 1].let { dayCourse ->
-                                                if (dayCourse.isNullOrEmpty()) {
-                                                    viewModel.semesterCourse[weekday + 1] =
-                                                        mutableStateMapOf()
-                                                }
-                                                viewModel.addCourse = true
-                                                viewModel.currentSelect = Pair(weekday, it)
-                                            }
+                                            viewModel.addCourseDialog = true
+                                            viewModel.currentSelect = Pair(weekday, it)
+                                            viewModel.isCourseExist()
                                         }) {}
                                     .background(
                                         MaterialTheme.colorScheme.secondaryContainer.copy(
@@ -225,56 +222,49 @@ fun CourseScreen(navController: NavHostController) {
                                         )
                                     )
                             ) {
-                                viewModel.semesterCourse[viewModel.weekSelector]?.get(weekday + 1)
-                                    ?.get(it * 2 + 1)?.let {
-                                    Column(
-                                        Modifier
-                                            .fillMaxSize()
-                                            .clickable {
-                                                viewModel.toast(
-                                                    "${it.first} \n ${
-                                                        it.second.replace(
-                                                            Regex("\\s"),
-                                                            " "
-                                                        )
-                                                    }"
-                                                )
-                                            },
-                                        verticalArrangement = Arrangement.SpaceBetween,
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            text = it.first,
-                                            maxLines = 3,
-                                            fontWeight = FontWeight.Bold,
-                                            textAlign = TextAlign.Center,
-                                            fontSize = 14.sp,
-                                            modifier = Modifier
-                                                .padding(
-                                                    top = 5.dp,
+                                viewModel.weekCourse[weekday + 1]
+                                    ?.get(it * 2 + 1)?.let { courseInfo ->
+                                        Column(
+                                            Modifier
+                                                .fillMaxSize(),
+                                            verticalArrangement = Arrangement.SpaceBetween,
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Text(
+                                                color = MaterialTheme.colorScheme.onBackground,
+                                                text = courseInfo.first,
+                                                maxLines = 3,
+                                                fontWeight = FontWeight.Bold,
+                                                textAlign = TextAlign.Center,
+                                                fontSize = 14.sp,
+                                                modifier = Modifier
+                                                    .padding(
+                                                        top = 5.dp,
+                                                        start = 2.dp,
+                                                        end = 2.dp
+                                                    )
+                                            )
+                                            Text(
+                                                color = MaterialTheme.colorScheme.onBackground,
+                                                text = courseInfo.second,
+                                                textAlign = TextAlign.Center,
+                                                fontSize = 12.sp,
+                                                maxLines = 2,
+                                                modifier = Modifier.padding(2.dp)
+                                            )
+                                            Text(
+                                                color = MaterialTheme.colorScheme.onBackground,
+                                                text = courseInfo.third,
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Light,
+                                                modifier = Modifier.padding(
+                                                    bottom = 5.dp,
                                                     start = 2.dp,
                                                     end = 2.dp
                                                 )
-                                        )
-                                        Text(
-                                            text = it.second,
-                                            textAlign = TextAlign.Center,
-                                            fontSize = 12.sp,
-                                            maxLines = 2,
-                                            modifier = Modifier.padding(2.dp)
-                                        )
-                                        Text(
-                                            text = it.third,
-                                            fontSize = 13.sp,
-                                            fontWeight = FontWeight.Light,
-                                            modifier = Modifier.padding(
-                                                bottom = 5.dp,
-                                                start = 2.dp,
-                                                end = 2.dp
                                             )
-                                        )
+                                        }
                                     }
-                                }
                             }
                             if (it == 1 || it == 3 || it == 4) Divider(
                                 thickness = 15.dp,
@@ -289,30 +279,48 @@ fun CourseScreen(navController: NavHostController) {
 
     }
 
-    if (viewModel.loadCourse) ProgressDialog(stringResource(id = R.string.wait_loading))
-    if (viewModel.addCourse) {
-        var courseName by remember { mutableStateOf("") }
-        var room by remember { mutableStateOf("") }
-        var teacher by remember { mutableStateOf("") }
+    if (viewModel.loadCourse) ProgressDialog(stringResource(R.string.wait_loading))
+    if (viewModel.addCourseDialog) {
         AlertDialog(title = {
-            Text(text = stringResource(id = R.string.add_course))
+            Text(text = stringResource(R.string.modify_course))
         }, text = {
-            Column {
-                TextField(value = courseName, onValueChange = { courseName = it })
-                TextField(value = room, onValueChange = { room = it })
-                TextField(value = teacher, onValueChange = { teacher = it })
+            Column(modifier = Modifier, verticalArrangement = Arrangement.SpaceAround) {
+                OutlinedTextField(
+                    value = viewModel.courseName,
+                    onValueChange = { viewModel.courseName = it },
+                    label = {
+                        Text(
+                            text = stringResource(R.string.course_name)
+                        )
+                    })
+                OutlinedTextField(
+                    value = viewModel.room,
+                    onValueChange = { viewModel.room = it },
+                    label = {
+                        Text(text = stringResource(R.string.room))
+                    })
+                OutlinedTextField(
+                    value = viewModel.teacher,
+                    onValueChange = { viewModel.teacher = it },
+                    label = {
+                        Text(text = stringResource(R.string.teacher))
+                    })
             }
-        }, onDismissRequest = { viewModel.addCourse = false }, confirmButton = {
+        }, onDismissRequest = { viewModel.addCourseDialog = false }, confirmButton = {
             Button(onClick = {
-                viewModel.addCourse = false
-                viewModel.semesterCourse[viewModel.weekSelector]!![viewModel.currentSelect.first + 1]!![viewModel.currentSelect.second * 2 + 1] =
-                    Triple(courseName, room, teacher)
+                viewModel.addCourseDialog = false
+                viewModel.deleteCourse()
+                viewModel.addCourse()
+
             }) {
-                Text(text = stringResource(R.string.add))
+                Text(text = stringResource(R.string.finish))
             }
         }, dismissButton = {
-            Button(onClick = { viewModel.addCourse = false }) {
-                Text(text = stringResource(R.string.dismiss))
+            Button(onClick = {
+                viewModel.addCourseDialog = false
+                viewModel.deleteCourse()
+            }) {
+                Text(text = stringResource(R.string.delete))
             }
         })
     }
